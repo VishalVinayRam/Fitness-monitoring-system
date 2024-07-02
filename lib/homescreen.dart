@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'models/photo.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -8,7 +9,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Map<String, dynamic>> _photos = [];
+  List<Photo> _photos = [];
 
   @override
   void initState() {
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final photosString = prefs.getString('photos');
     if (photosString != null) {
       setState(() {
-        _photos = List<Map<String, dynamic>>.from(json.decode(photosString));
+        _photos = photosFromJson(photosString);
       });
     }
   }
@@ -32,30 +33,48 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(title: Text('Home')),
       body: _photos.isEmpty
           ? Center(child: Text('No photos yet'))
-          : GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-              ),
-              itemCount: _photos.length,
-              itemBuilder: (context, index) {
-                final photo = _photos[index];
-                return GridTile(
-                  child: Image.memory(
-                    base64Decode(photo['image']!),
-                    fit: BoxFit.cover,
-                  ),
-                  footer: GridTileBar(
-                    backgroundColor: Colors.black54,
-                    title: Text(photo['note'] ?? ''),
-                  ),
-                );
-              },
+          : ListView(
+              children: [
+                _buildCategorySection('Food'),
+                _buildCategorySection('Exercise'),
+              ],
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/capture');
         },
         child: Icon(Icons.add_a_photo),
+      ),
+    );
+  }
+
+  Widget _buildCategorySection(String category) {
+    final categoryPhotos = _photos.where((p) => p.category == category).toList();
+    return ExpansionTile(
+      title: Text(category),
+      children: categoryPhotos.map((photo) => _buildPhotoTile(photo)).toList(),
+    );
+  }
+
+  Widget _buildPhotoTile(Photo photo) {
+    return ListTile(
+      leading: Image.memory(base64Decode(photo.image)),
+      title: Text(photo.note),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          if (photo.category == 'Food') ...[
+            Text('Food Name: ${photo.foodName}'),
+            Text('Time: ${photo.foodTime}'),
+            Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
+          ],
+          if (photo.category == 'Exercise') ...[
+            Text('Exercise: ${photo.exerciseName}'),
+            Text('Reps: ${photo.reps}'),
+            Text('Weight: ${photo.weight} kg'),
+          ],
+        ],
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'models/photo.dart';
 
 class CaptureScreen extends StatefulWidget {
   @override
@@ -11,7 +12,15 @@ class CaptureScreen extends StatefulWidget {
 
 class _CaptureScreenState extends State<CaptureScreen> {
   final _noteController = TextEditingController();
+  final _foodNameController = TextEditingController();
+  final _foodTimeController = TextEditingController();
+  final _quantityController = TextEditingController();
+  final _exerciseNameController = TextEditingController();
+  final _repsController = TextEditingController();
+  final _weightController = TextEditingController();
   File? _image;
+  String _category = 'Food';
+  String _foodType = 'solid';
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -27,15 +36,23 @@ class _CaptureScreenState extends State<CaptureScreen> {
     if (_image == null || _noteController.text.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
     final photosString = prefs.getString('photos');
-    final List<Map<String, dynamic>> photos = photosString != null
-        ? List<Map<String, dynamic>>.from(json.decode(photosString))
+    final List<Photo> photos = photosString != null
+        ? photosFromJson(photosString)
         : [];
-    final photo = {
-      'image': base64Encode(_image!.readAsBytesSync()),
-      'note': _noteController.text,
-    };
+    final photo = Photo(
+      image: base64Encode(_image!.readAsBytesSync()),
+      note: _noteController.text,
+      category: _category,
+      foodName: _category == 'Food' ? _foodNameController.text : null,
+      foodTime: _category == 'Food' ? _foodTimeController.text : null,
+      quantity: _category == 'Food' ? int.tryParse(_quantityController.text) : null,
+      foodType: _category == 'Food' ? _foodType : null,
+      exerciseName: _category == 'Exercise' ? _exerciseNameController.text : null,
+      reps: _category == 'Exercise' ? int.tryParse(_repsController.text) : null,
+      weight: _category == 'Exercise' ? int.tryParse(_weightController.text) : null,
+    );
     photos.add(photo);
-    await prefs.setString('photos', json.encode(photos));
+    await prefs.setString('photos', photosToJson(photos));
     Navigator.pop(context);
   }
 
@@ -45,23 +62,79 @@ class _CaptureScreenState extends State<CaptureScreen> {
       appBar: AppBar(title: Text('Capture Photo')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
           children: [
-            _image == null
-                ? Text('No image selected.')
-                : Image.file(_image!),
+            _image == null ? Text('No image selected.') : Image.file(_image!),
             TextField(
               controller: _noteController,
               decoration: InputDecoration(labelText: 'Note'),
             ),
-            SizedBox(height: 20),
+            DropdownButton<String>(
+              value: _category,
+              items: ['Food', 'Exercise'].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  _category = newValue!;
+                });
+              },
+            ),
+            if (_category == 'Food') ...[
+              TextField(
+                controller: _foodNameController,
+                decoration: InputDecoration(labelText: 'Food Name'),
+              ),
+              TextField(
+                controller: _foodTimeController,
+                decoration: InputDecoration(labelText: 'Time'),
+              ),
+              TextField(
+                controller: _quantityController,
+                decoration: InputDecoration(labelText: 'Quantity'),
+                keyboardType: TextInputType.number,
+              ),
+              DropdownButton<String>(
+                value: _foodType,
+                items: ['solid', 'drinks'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _foodType = newValue!;
+                  });
+                },
+              ),
+            ],
+            if (_category == 'Exercise') ...[
+              TextField(
+                controller: _exerciseNameController,
+                decoration: InputDecoration(labelText: 'Exercise Name'),
+              ),
+              TextField(
+                controller: _repsController,
+                decoration: InputDecoration(labelText: 'Reps'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: _weightController,
+                decoration: InputDecoration(labelText: 'Weight (kg)'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
             ElevatedButton(
               onPressed: _pickImage,
-              child: Text('Take Photo'),
+              child: Text('Pick Image'),
             ),
             ElevatedButton(
               onPressed: _savePhoto,
-              child: Text('Save'),
+              child: Text('Save Photo'),
             ),
           ],
         ),
