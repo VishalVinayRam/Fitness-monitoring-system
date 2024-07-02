@@ -7,11 +7,13 @@ class Photo {
   String? foodName;
   String? foodTime;
   int? quantity;
-  String? foodType; 
+  String? foodType;
   String? exerciseName;
   int? reps;
   int? weight;
   DateTime? date;
+  int? calories;
+  int? totalCalorie = 0;
 
   Photo({
     required this.image,
@@ -24,14 +26,15 @@ class Photo {
     this.exerciseName,
     this.reps,
     this.weight,
-    this.date
+    this.date,
+    this.calories,
   });
 
   factory Photo.fromJson(Map<String, dynamic> json) {
     return Photo(
       image: json['image'],
       note: json['note'],
-      category: json['category']??"Food",
+      category: json['category'] ?? "Food",
       foodName: json['foodName'],
       foodTime: json['foodTime'],
       quantity: json['quantity'],
@@ -39,7 +42,8 @@ class Photo {
       exerciseName: json['exerciseName'],
       reps: json['reps'],
       weight: json['weight'],
-      date: json['date']
+      date: json['date'] != null ? DateTime.parse(json['date']) : null, // Parse date
+      calories: json['calories'],
     );
   }
 
@@ -55,7 +59,8 @@ class Photo {
       'exerciseName': exerciseName,
       'reps': reps,
       'weight': weight,
-      'date':date
+      'date': date?.toIso8601String(), // Convert date to ISO 8601 string
+      'calories': calories,
     };
   }
 }

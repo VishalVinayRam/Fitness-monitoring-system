@@ -15,13 +15,14 @@ class _CaptureScreenState extends State<CaptureScreen> {
   final _foodNameController = TextEditingController();
   final _foodTimeController = TextEditingController();
   final _quantityController = TextEditingController();
+  final _caloriesController = TextEditingController(); // New controller for calories
   final _exerciseNameController = TextEditingController();
   final _repsController = TextEditingController();
   final _weightController = TextEditingController();
   File? _image;
   String _category = 'Food';
   String _foodType = 'solid';
-  DateTime _selectedDate = DateTime.now(); // Selected date
+  DateTime _selectedDate = DateTime.now();
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -44,7 +45,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
       image: base64Encode(_image!.readAsBytesSync()),
       note: _noteController.text,
       category: _category,
-      date: _selectedDate, // Assign selected date
+      date: _selectedDate,
+      calories: int.tryParse(_caloriesController.text) ?? 0, // Save calories
       foodName: _category == 'Food' ? _foodNameController.text : null,
       foodTime: _category == 'Food' ? _foodTimeController.text : null,
       quantity: _category == 'Food' ? int.tryParse(_quantityController.text) : null,
@@ -127,6 +129,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   });
                 },
               ),
+              TextField(
+                controller: _caloriesController,
+                decoration: InputDecoration(labelText: 'Calories'),
+                keyboardType: TextInputType.number,
+              ),
             ],
             if (_category == 'Exercise') ...[
               TextField(
@@ -141,6 +148,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
               TextField(
                 controller: _weightController,
                 decoration: InputDecoration(labelText: 'Weight (kg)'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: _caloriesController,
+                decoration: InputDecoration(labelText: 'Calories'),
                 keyboardType: TextInputType.number,
               ),
             ],

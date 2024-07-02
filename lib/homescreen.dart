@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:management/pedometer.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'models/photo.dart';
@@ -11,8 +12,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   List<Photo> _photos = [];
+  DateTime _selectedDate = DateTime.now();
+  int _totalCaloriesConsumed = 0;
+  int _totalCaloriesReduced = 0;
   late TabController _tabController;
-  late DateTime _selectedDate = DateTime.now(); // Selected date
+
 
   @override
   void initState() {
@@ -30,10 +34,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       setState(() {
         _photos = photos;
       });
+      _updateCalorieCount();
     }
   }
 
-  void _selectDate(BuildContext context) async {
+  void _updateCalorieCount() {
+    int consumed = 0;
+    int reduced = 0;
+    for (var photo in _photos) {
+      if (photo.date.toString()==_selectedDate) {
+        if (photo.category == 'Food') {
+          consumed += photo.calories??0;
+        } else if (photo.category == 'Exercise') {
+          reduced += photo.calories??0;
+        }
+      }
+    }
+    setState(() {
+      _totalCaloriesConsumed = consumed;
+      _totalCaloriesReduced = reduced;
+    });
+  }
+
+  List<Photo> getPhotosForDate(DateTime date) {
+    return _photos.where((photo) => photo.date.toString()==_selectedDate).toList();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -44,14 +71,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       setState(() {
         _selectedDate = picked;
       });
+      _updateCalorieCount();
     }
-  }
-
-  List<Photo> getPhotosForDate(DateTime date) {
-    return _photos
-      .where((photo) =>
-          photo.date != null && photo.date!.isAtSameMomentAs(date))
-      .toList();
   }
 
   @override
@@ -92,44 +113,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
-
-  Widget _buildPhotoTile(Photo photo) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Image.memory(
-              base64Decode(photo.image),
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
-                if (photo.category == 'Food') ...[
-                  Text('Food Name: ${photo.foodName}'),
-                  Text('Time: ${photo.foodTime}'),
-                  Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
-                ],
-                if (photo.category == 'Exercise') ...[
-                  Text('Exercise: ${photo.exerciseName}'),
-                  Text('Reps: ${photo.reps}'),
-                  Text('Weight: ${photo.weight} kg'),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
 Widget _buildCategoryView(String category) {
     final categoryPhotos = _photos.where((p) => p.category == category).toList();
     return categoryPhotos.isEmpty
@@ -145,6 +128,144 @@ Widget _buildCategoryView(String category) {
             itemBuilder: (context, index) {
               return _buildPhotoTile(categoryPhotos[index]);
             },
+          );
+}
+  Widget _buildPhotoTile(Photo photo) {
+    return Card(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Image.memory(
+                          base64Decode(photo.image),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      ),
+                      // 9538963355
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
+                            if (photo.category == 'Food') ...[
+                              Text('Food Name: ${photo.foodName}'),
+                              Text('Time: ${photo.foodTime}'),
+                              Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
+                              Text('Calories: ${photo.calories}'),
+                            ],
+                            if (photo.category == 'Exercise') ...[
+                              Text('Exercise: ${photo.exerciseName}'),
+                              Text('Reps: ${photo.reps}'),
+                              Text('Weight: ${photo.weight} kg'),
+                              Text('Calories: ${photo.calories}'),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+
+      // body: Column(
+      //   children: [
+      //     Padding(
+      //       padding: const EdgeInsets.all(16.0),
+      //       child: Column(
+      //         crossAxisAlignment: CrossAxisAlignment.start,
+      //         children: [
+      //           Text('Total Calories Consumed: $_totalCaloriesConsumed'),
+      //           Text('Total Calories Reduced: $_totalCaloriesReduced'),
+      //         ],
+      //       ),
+      //     ),
+      //     Expanded(
+      //       child:
+      //        GridView.builder(
+      //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      //         itemCount: photosForSelectedDate.length,
+      //         itemBuilder: (context, index) {
+      //           final photo = photosForSelectedDate[index];
+      //           return GridTile(
+      //             child: Column(
+      //               crossAxisAlignment: CrossAxisAlignment.start,
+      //               children: [
+      //                 Expanded(
+      //                   child: Image.memory(
+      //                     base64Decode(photo.image),
+      //                     fit: BoxFit.cover,
+      //                     width: double.infinity,
+      //                   ),
+      //                 ),
+      //                 // 9538963355
+      //                 Padding(
+      //                   padding: const EdgeInsets.all(8.0),
+      //                   child: Column(
+      //                     crossAxisAlignment: CrossAxisAlignment.start,
+      //                     children: [
+      //                       Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
+      //                       if (photo.category == 'Food') ...[
+      //                         Text('Food Name: ${photo.foodName}'),
+      //                         Text('Time: ${photo.foodTime}'),
+      //                         Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
+      //                         Text('Calories: ${photo.calories}'),
+      //                       ],
+      //                       if (photo.category == 'Exercise') ...[
+      //                         Text('Exercise: ${photo.exerciseName}'),
+      //                         Text('Reps: ${photo.reps}'),
+      //                         Text('Weight: ${photo.weight} kg'),
+      //                         Text('Calories: ${photo.calories}'),
+      //                       ],
+      //                     ],
+      //                   ),
+      //                 ),
+      //               ],
+      //             ),
+      //           );
+      //         },
+      //       ),
+            //  GridView.builder(
+            //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+            //   itemCount: photosForSelectedDate.length,
+            //   itemBuilder: (context, index) {
+            //     final photo = photosForSelectedDate[index];
+            //     return GridTile(
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           Expanded(
+            //             child: Image.memory(
+            //               base64Decode(photo.image),
+            //               fit: BoxFit.cover,
+            //               width: double.infinity,
+            //             ),
+            //           ),
+            //           Padding(
+            //             padding: const EdgeInsets.all(8.0),
+            //             child: Column(
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
+            //                 if (photo.category == 'Food') ...[
+            //                   Text('Food Name: ${photo.foodName}'),
+            //                   Text('Time: ${photo.foodTime}'),
+            //                   Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
+            //                   Text('Calories: ${photo.calories}'),
+            //                 ],
+            //                 if (photo.category == 'Exercise') ...[
+            //                   Text('Exercise: ${photo.exerciseName}'),
+            //                   Text('Reps: ${photo.reps}'),
+            //                   Text('Weight: ${photo.weight} kg'),
+            //                   Text('Calories: ${photo.calories}'),
+            //                 ],
+            //               ],
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     );
+            //   },
+            // ),
           );
   }
 }
