@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:management/Reminder.dart';
 import 'package:management/pedometer.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -81,6 +82,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(onPressed:(){ Navigator.push(context,MaterialPageRoute(builder: (context)=>ReminderScreen()));}, icon: Icon(Icons.lock_clock))
+        ],
         leading:  IconButton(
             icon: Icon(Icons.calendar_today),
             onPressed: () => _selectDate(context),
@@ -166,106 +170,6 @@ Widget _buildCategoryView(String category) {
                       ),
                     ],
                   )
-
-      // body: Column(
-      //   children: [
-      //     Padding(
-      //       padding: const EdgeInsets.all(16.0),
-      //       child: Column(
-      //         crossAxisAlignment: CrossAxisAlignment.start,
-      //         children: [
-      //           Text('Total Calories Consumed: $_totalCaloriesConsumed'),
-      //           Text('Total Calories Reduced: $_totalCaloriesReduced'),
-      //         ],
-      //       ),
-      //     ),
-      //     Expanded(
-      //       child:
-      //        GridView.builder(
-      //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      //         itemCount: photosForSelectedDate.length,
-      //         itemBuilder: (context, index) {
-      //           final photo = photosForSelectedDate[index];
-      //           return GridTile(
-      //             child: Column(
-      //               crossAxisAlignment: CrossAxisAlignment.start,
-      //               children: [
-      //                 Expanded(
-      //                   child: Image.memory(
-      //                     base64Decode(photo.image),
-      //                     fit: BoxFit.cover,
-      //                     width: double.infinity,
-      //                   ),
-      //                 ),
-      //                 // 9538963355
-      //                 Padding(
-      //                   padding: const EdgeInsets.all(8.0),
-      //                   child: Column(
-      //                     crossAxisAlignment: CrossAxisAlignment.start,
-      //                     children: [
-      //                       Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
-      //                       if (photo.category == 'Food') ...[
-      //                         Text('Food Name: ${photo.foodName}'),
-      //                         Text('Time: ${photo.foodTime}'),
-      //                         Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
-      //                         Text('Calories: ${photo.calories}'),
-      //                       ],
-      //                       if (photo.category == 'Exercise') ...[
-      //                         Text('Exercise: ${photo.exerciseName}'),
-      //                         Text('Reps: ${photo.reps}'),
-      //                         Text('Weight: ${photo.weight} kg'),
-      //                         Text('Calories: ${photo.calories}'),
-      //                       ],
-      //                     ],
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //           );
-      //         },
-      //       ),
-            //  GridView.builder(
-            //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-            //   itemCount: photosForSelectedDate.length,
-            //   itemBuilder: (context, index) {
-            //     final photo = photosForSelectedDate[index];
-            //     return GridTile(
-            //       child: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Expanded(
-            //             child: Image.memory(
-            //               base64Decode(photo.image),
-            //               fit: BoxFit.cover,
-            //               width: double.infinity,
-            //             ),
-            //           ),
-            //           Padding(
-            //             padding: const EdgeInsets.all(8.0),
-            //             child: Column(
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: [
-            //                 Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
-            //                 if (photo.category == 'Food') ...[
-            //                   Text('Food Name: ${photo.foodName}'),
-            //                   Text('Time: ${photo.foodTime}'),
-            //                   Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
-            //                   Text('Calories: ${photo.calories}'),
-            //                 ],
-            //                 if (photo.category == 'Exercise') ...[
-            //                   Text('Exercise: ${photo.exerciseName}'),
-            //                   Text('Reps: ${photo.reps}'),
-            //                   Text('Weight: ${photo.weight} kg'),
-            //                   Text('Calories: ${photo.calories}'),
-            //                 ],
-            //               ],
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //     );
-            //   },
-            // ),
           );
   }
 }

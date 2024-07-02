@@ -5,14 +5,17 @@
 // void main() {
 //   runApp(MyApp());
 // }
-
-
+import 'package:management/Reminder.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'homescreen.dart';
 import 'capture_screen.dart';
 
 void main() {
+   WidgetsFlutterBinding.ensureInitialized();
+  tzdata.initializeTimeZones();
   runApp(PhotoNotesApp());
 }
 
@@ -26,9 +29,10 @@ class PhotoNotesApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginScreen(),
+        '/': (context) => MainScreen(),
         '/home': (context) => HomeScreen(),
         '/capture': (context) => CaptureScreen(),
+        '/reminder':(contect) => ReminderScreen(),
       },
     );
   }

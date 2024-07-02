@@ -39,8 +39,16 @@ class _ReminderScreenState extends State<ReminderScreen> {
   }
 
   Future<void> _setDailyReminder(TimeOfDay time) async {
-    final now = DateTime.now();
-    final scheduledNotificationDateTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    final now = tz.TZDateTime.now(tz.local);
+    final scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
+
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'daily_reminder_channel_id',
       'Daily Reminder',
@@ -54,16 +62,11 @@ class _ReminderScreenState extends State<ReminderScreen> {
       0,
       'Daily Reminder',
       'It\'s time for your daily task!',
-      scheduledNotificationDateTime,
+      scheduledDate,
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
-      matchDateTimeComponents: DateTimeComponents.time,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.wallClockTime,
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     );
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('reminderHour', time.hour);
-    await prefs.setInt('reminderMinute', time.minute);
   }
 
   @override
