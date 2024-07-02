@@ -21,6 +21,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
   File? _image;
   String _category = 'Food';
   String _foodType = 'solid';
+  DateTime _selectedDate = DateTime.now(); // Selected date
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -43,6 +44,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       image: base64Encode(_image!.readAsBytesSync()),
       note: _noteController.text,
       category: _category,
+      date: _selectedDate, // Assign selected date
       foodName: _category == 'Food' ? _foodNameController.text : null,
       foodTime: _category == 'Food' ? _foodTimeController.text : null,
       quantity: _category == 'Food' ? int.tryParse(_quantityController.text) : null,
@@ -54,6 +56,20 @@ class _CaptureScreenState extends State<CaptureScreen> {
     photos.add(photo);
     await prefs.setString('photos', photosToJson(photos));
     Navigator.pop(context);
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
   }
 
   @override
@@ -128,6 +144,16 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 keyboardType: TextInputType.number,
               ),
             ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Selected Date: ${_selectedDate.toString().split(' ')[0]}'),
+                IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context),
+                ),
+              ],
+            ),
             ElevatedButton(
               onPressed: _pickImage,
               child: Text('Pick Image'),

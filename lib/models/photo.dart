@@ -11,6 +11,7 @@ class Photo {
   String? exerciseName;
   int? reps;
   int? weight;
+  DateTime? date;
 
   Photo({
     required this.image,
@@ -23,6 +24,7 @@ class Photo {
     this.exerciseName,
     this.reps,
     this.weight,
+    this.date
   });
 
   factory Photo.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class Photo {
       exerciseName: json['exerciseName'],
       reps: json['reps'],
       weight: json['weight'],
+      date: json['date']
     );
   }
 
@@ -52,6 +55,7 @@ class Photo {
       'exerciseName': exerciseName,
       'reps': reps,
       'weight': weight,
+      'date':date
     };
   }
 }

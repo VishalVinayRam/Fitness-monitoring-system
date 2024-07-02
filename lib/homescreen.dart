@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:management/pedometer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'models/photo.dart';
@@ -11,11 +12,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   List<Photo> _photos = [];
   late TabController _tabController;
+  late DateTime _selectedDate = DateTime.now(); // Selected date
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+      _tabController = TabController(length: 3, vsync: this);
+
     _loadPhotos();
   }
 
@@ -23,30 +26,62 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final prefs = await SharedPreferences.getInstance();
     final photosString = prefs.getString('photos');
     if (photosString != null) {
+      final List<Photo> photos = photosFromJson(photosString);
       setState(() {
-        _photos = photosFromJson(photosString);
+        _photos = photos;
       });
     }
   }
 
+  void _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  List<Photo> getPhotosForDate(DateTime date) {
+    return _photos
+      .where((photo) =>
+          photo.date != null && photo.date!.isAtSameMomentAs(date))
+      .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Photo> filteredPhotos = getPhotosForDate(_selectedDate);
+
     return Scaffold(
       appBar: AppBar(
+        leading:  IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () => _selectDate(context),
+          ),
         title: Text('Home'),
-        bottom: TabBar(
+         bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(text: 'Food'),
             Tab(text: 'Exercise'),
+            Tab(text: "Steps",)
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
+        children:[
+          filteredPhotos.isEmpty
+          ? Center(child: Text('No photos for selected date')):
           _buildCategoryView('Food'),
           _buildCategoryView('Exercise'),
+          StepsCounting(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -56,24 +91,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         child: Icon(Icons.add_a_photo),
       ),
     );
-  }
-
-  Widget _buildCategoryView(String category) {
-    final categoryPhotos = _photos.where((p) => p.category == category).toList();
-    return categoryPhotos.isEmpty
-        ? Center(child: Text('No photos yet'))
-        : GridView.builder(
-            padding: const EdgeInsets.all(8),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-            ),
-            itemCount: categoryPhotos.length,
-            itemBuilder: (context, index) {
-              return _buildPhotoTile(categoryPhotos[index]);
-            },
-          );
   }
 
   Widget _buildPhotoTile(Photo photo) {
@@ -110,5 +127,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ],
       ),
     );
+  }
+
+
+Widget _buildCategoryView(String category) {
+    final categoryPhotos = _photos.where((p) => p.category == category).toList();
+    return categoryPhotos.isEmpty
+        ? Center(child: Text('No photos yet'))
+        : GridView.builder(
+            padding: const EdgeInsets.all(8),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            itemCount: categoryPhotos.length,
+            itemBuilder: (context, index) {
+              return _buildPhotoTile(categoryPhotos[index]);
+            },
+          );
   }
 }
