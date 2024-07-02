@@ -3,6 +3,7 @@ import 'package:management/Reminder.dart';
 import 'package:management/pedometer.dart';
 import 'package:gauge_indicator/gauge_indicator.dart';
 import 'package:management/widgets/Graph_card.dart';
+import 'package:management/widgets/Hero_section.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -92,18 +93,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             onPressed: () => _selectDate(context),
           ),
         title: Text('Home'),
-         bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'Food'),
-            Tab(text: 'Exercise'),
-            Tab(text: "Steps",)
-          ],
-        ),
       ),
       body: Container(
         height: 200,
-        child:CustomCard(totalCaloriesConsumed: 30,),
+        child:MediterranesnDietView(eaten: _totalCaloriesConsumed,burned: _totalCaloriesReduced,),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
