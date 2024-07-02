@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gauge_indicator/gauge_indicator.dart';
 
 import 'package:management/themes/Fitness.dart';
 
@@ -44,7 +45,7 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView>
   @override
   Widget build(BuildContext context) {
     return  Container(
-      height: 300,
+      height: 500,
                 decoration: BoxDecoration(
                   color: FitnessAppTheme.white,
                   borderRadius: BorderRadius.only(
@@ -65,7 +66,7 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView>
                   children: <Widget>[
                     Padding(
                       padding:
-                          const EdgeInsets.only(top: 16, left: 16, right: 16),
+                          const EdgeInsets.only(top: 0, left: 16, right: 16),
                       child: Row(
                         children: <Widget>[
                           Expanded(
@@ -87,6 +88,7 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView>
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
+                                        
                                         child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -151,11 +153,10 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView>
                                       )
                                     ],
                                   ),
-                                  SizedBox(height: 8),
                                   Row(
                                     children: <Widget>[
                                       Container(
-                                        height: 48,
+                                        height: 58,
                                         width: 2,
                                         decoration: BoxDecoration(
                                           color: HexColor('#F56E98').withOpacity(0.5),
@@ -230,66 +231,46 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView>
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: Center(
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                      width: 100,
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        color: FitnessAppTheme.white,
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(100.0),
+
+                        Column(
+                          children: [
+                            AnimatedRadialGauge(
+                                          duration: const Duration(seconds: 1),
+                                          curve: Curves.elasticOut,
+                                          radius: 100,
+                                          value: (eaten-burned).toDouble(),
+                                          axis: const GaugeAxis(
+                                            min: 0,
+                                            max: 100,
+                                            degrees: 180,
+                                            style: GaugeAxisStyle(
+                                              thickness: 20,
+                                              background: Color.fromARGB(255, 217, 0, 255),
+                                              segmentSpacing: 4,
+                                            ),
+                                            pointer: GaugePointer.needle(
+                                              height: 80,
+                                              color: Color.fromARGB(255, 217, 0, 255),
+                                              width: 19,
+                                              borderRadius: 16,
+                                            ),
+                                            progressBar: GaugeProgressBar.rounded(
+                                              color: Color.fromARGB(255, 255, 255, 255),
+                                            ),
+                                            segments: [
+                                              GaugeSegment(
+                                                from: 0,
+                                                to: 30,
+                                                color: Color.fromARGB(255, 158, 4, 219),
+                                                cornerRadius: Radius.zero,
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        border: Border.all(
-                                            width: 4,
-                                            color: FitnessAppTheme
-                                                .nearlyDarkBlue
-                                                .withOpacity(0.2)),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text(
-                                            eaten.toString(),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontFamily: FitnessAppTheme.fontName,
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 24,
-                                              letterSpacing: 0.0,
-                                              color: FitnessAppTheme
-                                                  .nearlyDarkBlue,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Kcal left',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontFamily: FitnessAppTheme.fontName,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12,
-                                              letterSpacing: 0.0,
-                                              color: FitnessAppTheme.grey
-                                                  .withOpacity(0.5),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
+                                                    Container(padding:EdgeInsets.all(30),child: Text('Calories left ${eaten-burned}'))
+
+                          ],
+                        ),
                         ],
                       ),
                     ),

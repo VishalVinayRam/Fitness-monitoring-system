@@ -4,6 +4,7 @@ import 'package:management/pedometer.dart';
 import 'package:gauge_indicator/gauge_indicator.dart';
 import 'package:management/widgets/Graph_card.dart';
 import 'package:management/widgets/Hero_section.dart';
+import 'package:management/widgets/Water.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -94,9 +95,16 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           ),
         title: Text('Home'),
       ),
-      body: Container(
-        height: 200,
-        child:MediterranesnDietView(eaten: _totalCaloriesConsumed,burned: _totalCaloriesReduced,),
+      body: Scaffold(
+
+        body: Column(
+          children: [
+          Container(
+            height: 200,
+            child:MediterranesnDietView(eaten: _totalCaloriesConsumed,burned: _totalCaloriesReduced,),
+          ),
+          WaterView()
+        ])
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
