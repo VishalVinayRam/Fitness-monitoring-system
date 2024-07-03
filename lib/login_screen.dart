@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:management/Reminder.dart';
 import 'package:management/pedometer.dart';
 import 'package:gauge_indicator/gauge_indicator.dart';
+import 'package:management/themes/Fitness.dart';
+import 'package:management/widgets/Body_measurement.dart';
 import 'package:management/widgets/Graph_card.dart';
 import 'package:management/widgets/Hero_section.dart';
 import 'package:management/widgets/Water.dart';
@@ -95,17 +98,64 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           ),
         title: Text('Home'),
       ),
-      body: Scaffold(
-
-        body: Column(
-          children: [
-          Container(
-            height: 200,
-            child:MediterranesnDietView(eaten: _totalCaloriesConsumed,burned: _totalCaloriesReduced,),
-          ),
-          WaterView()
-        ])
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: FitnessAppTheme.nearlyDarkBlue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                // Navigate to settings screen
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text('About'),
+              onTap: () {
+                // Navigate to about screen
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
+      body:  SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Container(
+            child: Column(
+              children: [
+              Container(
+                margin: EdgeInsets.all(15),
+                height: 200,
+                child:MediterranesnDietView(eaten: _totalCaloriesConsumed,burned: _totalCaloriesReduced,),
+              ),
+              Container(
+                margin:EdgeInsets.all(15),
+                child: WaterView()),
+              BodyMeasurementView(),
+            ]),
+          ),),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/capture');
