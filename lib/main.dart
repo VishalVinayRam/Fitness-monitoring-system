@@ -6,6 +6,7 @@
 //   runApp(MyApp());
 // }
 import 'package:management/Reminder.dart';
+import 'package:management/VideoScreen.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class PhotoNotesApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => MainScreen(),
+        '/': (context) => VideoStorageScreen(),
         '/home': (context) => HomeScreen(),
         '/capture': (context) => CaptureScreen(),
         '/reminder':(contect) => ReminderScreen(),
