@@ -245,23 +245,23 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView>
                                             degrees: 180,
                                             style: GaugeAxisStyle(
                                               thickness: 20,
-                                              background: Color.fromARGB(255, 217, 0, 255),
+                                              background: FitnessAppTheme.nearlyDarkBlue,
                                               segmentSpacing: 4,
                                             ),
                                             pointer: GaugePointer.needle(
                                               height: 80,
-                                              color: Color.fromARGB(255, 217, 0, 255),
+                                              color:  FitnessAppTheme.nearlyDarkBlue,
                                               width: 19,
                                               borderRadius: 16,
                                             ),
                                             progressBar: GaugeProgressBar.rounded(
-                                              color: Color.fromARGB(255, 255, 255, 255),
+                                                color: Color.fromARGB(255, 87, 101, 255),
                                             ),
                                             segments: [
                                               GaugeSegment(
                                                 from: 0,
                                                 to: 30,
-                                                color: Color.fromARGB(255, 158, 4, 219),
+                                                color: Color.fromARGB(255, 87, 101, 255),
                                                 cornerRadius: Radius.zero,
                                               ),
                                             ],
@@ -280,7 +280,7 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView>
                       child: Container(
                         height: 2,
                         decoration: BoxDecoration(
-                          color: FitnessAppTheme.background,
+                          color: Color.fromARGB(255, 3, 45, 250),
                           borderRadius: BorderRadius.all(Radius.circular(4.0)),
                         ),
                       ),

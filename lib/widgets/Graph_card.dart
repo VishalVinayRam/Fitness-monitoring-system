@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gauge_indicator/gauge_indicator.dart';
+import 'package:management/themes/Fitness.dart';
 
 class CustomCard extends StatelessWidget {
   final double totalCaloriesConsumed;
@@ -9,7 +10,7 @@ class CustomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color.fromARGB(255, 94, 2, 110),
+                                          color: FitnessAppTheme.nearlyDarkBlue,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
@@ -30,7 +31,8 @@ class CustomCard extends StatelessWidget {
                 degrees: 180,
                 style: GaugeAxisStyle(
                   thickness: 20,
-                  background: Color.fromARGB(255, 217, 0, 255),
+                  background:                                           FitnessAppTheme.nearlyBlue,
+
                   segmentSpacing: 4,
                 ),
                 pointer: GaugePointer.needle(
@@ -46,7 +48,7 @@ class CustomCard extends StatelessWidget {
                   GaugeSegment(
                     from: 0,
                     to: 30,
-                    color: Color.fromARGB(255, 174, 59, 219),
+                      color: FitnessAppTheme.nearlyDarkBlue,
                     cornerRadius: Radius.zero,
                   ),
                 ],
