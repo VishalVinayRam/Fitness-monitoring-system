@@ -91,7 +91,6 @@ GlobalData global = GlobalData();
         actions: [
           IconButton(onPressed:(){ Navigator.push(context,MaterialPageRoute(builder: (context)=>ReminderScreen()));}, icon: Icon(Icons.lock_clock))
         ],
-        title: Text('Home'),
       ),
       drawer: Drawer(
         child: ListView(
@@ -108,7 +107,7 @@ GlobalData global = GlobalData();
             ),
              ListTile(
               leading: Icon(Icons.home),
-              title: Text('Home'),
+              title: Text('Gallery'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(

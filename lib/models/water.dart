@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:management/models/Userdate.dart';
 
 class WaterViewModel extends ChangeNotifier {
-  double _totalCaloriesConsumed = 2100;
+  GlobalData data = GlobalData();
+  double _totalWaterConsumed = 0.0;
   String _cardTitle = "Card's Title 1";
   String _subtitle = "Sub title";
   String _lastDrinkTime = "8:26 AM";
@@ -9,7 +12,7 @@ class WaterViewModel extends ChangeNotifier {
   String _units = "ml";
   String _dailyGoal = "3.5L";
 
-  double get totalCaloriesConsumed => _totalCaloriesConsumed;
+  double get totalWaterConsumed => _totalWaterConsumed;
   String get cardTitle => _cardTitle;
   String get subtitle => _subtitle;
   String get lastDrinkTime => _lastDrinkTime;
@@ -17,8 +20,33 @@ class WaterViewModel extends ChangeNotifier {
   String get units => _units;
   String get dailyGoal => _dailyGoal;
 
-  void updateCalories(double value) {
-    _totalCaloriesConsumed += value;
+  WaterViewModel() {
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? lastResetDate = prefs.getString('lastResetDate');
+    String currentDate = DateTime.now().toIso8601String().split('T')[0];
+
+    if (lastResetDate == null || lastResetDate != currentDate) {
+      _totalWaterConsumed = 0.0;
+      await prefs.setString('lastResetDate', currentDate);
+    } else {
+      _totalWaterConsumed = prefs.getDouble('totalWaterConsumed') ?? 0.0;
+    }
+
+    notifyListeners();
+  }
+
+  void _saveTotalWaterConsumed() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('totalWaterConsumed', _totalWaterConsumed);
+  }
+
+  void updateWater(double value) {
+    _totalWaterConsumed += value;
+    _saveTotalWaterConsumed();
     notifyListeners();
   }
 

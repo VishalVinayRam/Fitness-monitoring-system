@@ -1,15 +1,19 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalData {
-   String _name = "";
-   double _height = 0.0; // in cm
-   double _weight  = 0.0; // in kg
-   int _calorieGoal=  0; // calories per day
-   int _waterGoal = 0; // ml per day
+  String _name = "";
+  double _height = 0.0; // in cm
+  double _weight = 0.0; // in kg
+  int _calorieGoal = 0; // calories per day
+  int _waterGoal = 0; // ml per day
   String? _photoUrl = ""; // optional photo URL
-  int _number= 0;
-  String _password= '';
+  int _number = 0;
+  String _password = '';
   int _age = 18;
+  double _totalCaloriesConsumed = 0.0;
+  double _bmi = 0.0;
+  double _fat = 0.0;
+  String _lastDate = "";
 
   // Singleton pattern for global state management
   static final GlobalData _singleton = GlobalData._internal();
@@ -28,36 +32,50 @@ class GlobalData {
   int get waterGoal => _waterGoal;
   String? get photoUrl => _photoUrl;
   int get number => _number;
-  String get password => password;
-    int get age => _age;
-
+  String get password => _password;
+  int get age => _age;
+  double get totalCaloriesConsumed => _totalCaloriesConsumed;
+  double  get bmi => _bmi;
+  double get fat => _fat;
+  String get lastDate => _lastDate;
 
   // Setters
   set name(String value) {
     _name = value;
     saveToPrefs('name', value);
   }
-
+   set lastDate(String value) {
+    _lastDate = value;
+    saveToPrefs('lastDate', value);
+  }
   set height(double value) {
     _height = value;
     saveToPrefs('height', value.toString());
   }
-  set number(int value)
-  {
+
+ set bmi(double value) {
+    _bmi = value;
+    saveToPrefs('bmi', value.toString());
+  }
+   set fat(double value) {
+    _fat = value;
+    saveToPrefs('fat', value.toString());
+  }
+  set number(int value) {
     _number = value;
-    saveToPrefs('number', number.toString());
+    saveToPrefs('number', value.toString());
   }
 
-  set age(int value)
-  {
-    _number = value;
-    saveToPrefs('age',value.toString());
+  set age(int value) {
+    _age = value;
+    saveToPrefs('age', value.toString());
   }
-  set password(String value)
-  {
-    password = value;
+
+  set password(String value) {
+    _password = value;
     saveToPrefs('password', value);
   }
+
   set weight(double value) {
     _weight = value;
     saveToPrefs('weight', value.toString());
@@ -78,6 +96,11 @@ class GlobalData {
     saveToPrefs('photoUrl', value ?? '');
   }
 
+  set totalCaloriesConsumed(double value) {
+    _totalCaloriesConsumed = value;
+    saveToPrefs('totalCaloriesConsumed', value.toString());
+  }
+
   // Method to initialize global data from shared preferences
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -87,10 +110,22 @@ class GlobalData {
     _calorieGoal = prefs.getInt('calorieGoal') ?? 0;
     _waterGoal = prefs.getInt('waterGoal') ?? 0;
     _photoUrl = prefs.getString('photoUrl');
-    _number = prefs.getInt('number')??0;
-    _password = prefs.getString('password')??'';
-        _age = prefs.getInt('age')??0;
+    _number = prefs.getInt('number') ?? 0;
+    _password = prefs.getString('password') ?? '';
+    _age = prefs.getInt('age') ?? 0;
+    _bmi = prefs.getDouble('bmi')??0;
+        _fat = prefs.getDouble('fat')??0;
+        _lastDate = prefs.getString('lastDate')??"";
 
+    _totalCaloriesConsumed = prefs.getDouble('totalCaloriesConsumed') ?? 0.0;
+
+    String? lastResetDate = prefs.getString('lastResetDate');
+    String currentDate = DateTime.now().toIso8601String().split('T')[0];
+
+    if (lastResetDate == null || lastResetDate != currentDate) {
+      _totalCaloriesConsumed = 0.0;
+      await prefs.setString('lastResetDate', currentDate);
+    }
   }
 
   // Private method to save a single value to shared preferences
