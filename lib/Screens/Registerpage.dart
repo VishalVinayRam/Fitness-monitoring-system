@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:management/Screens/LoginScreen.dart';
 import 'package:management/models/Userdate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class StartingPage extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   @override
-  _StartingPageState createState() => _StartingPageState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _StartingPageState extends State<StartingPage> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalData globalData = GlobalData();
-
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
@@ -21,28 +21,6 @@ class _StartingPageState extends State<StartingPage> {
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _bmiController = TextEditingController();
   final TextEditingController _fatController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadInitialData();
-  }
-
-  Future<void> _loadInitialData() async {
-    await globalData.init();
-    setState(() {
-      _nameController.text = globalData.name;
-      _heightController.text = globalData.height.toString();
-      _weightController.text = globalData.weight.toString();
-      _calorieGoalController.text = globalData.calorieGoal.toString();
-      _waterGoalController.text = globalData.waterGoal.toString();
-      _numberController.text = globalData.number.toString();
-      _passwordController.text = globalData.password;
-      _ageController.text = globalData.age.toString();
-      _bmiController.text = globalData.bmi.toString();
-      _fatController.text = globalData.fat.toString();
-    });
-  }
 
   Future<void> _saveData() async {
     if (_formKey.currentState!.validate()) {
@@ -58,7 +36,12 @@ class _StartingPageState extends State<StartingPage> {
       globalData.fat = double.parse(_fatController.text);
 
       await globalData.init(); // Refresh data from shared preferences
-      Navigator.pushNamed(context, 'home');
+
+      // Navigate to the next screen or show a success message
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
     }
   }
 
@@ -66,7 +49,7 @@ class _StartingPageState extends State<StartingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter Your Details'),
+        title: Text('Register'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -137,7 +120,7 @@ class _StartingPageState extends State<StartingPage> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _saveData,
-                  child: Text('Save'),
+                  child: Text('Register'),
                 ),
               ],
             ),

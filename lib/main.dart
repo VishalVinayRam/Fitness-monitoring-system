@@ -1,19 +1,12 @@
-// import 'package:flutter/material.dart';
-// import 'package:pedometer/pedometer.dart';
-// import './homescreen.dart'; // Import the photo tab screen
-
-// void main() {
-//   runApp(MyApp());
-// }
-import 'package:management/Reminder.dart';
-import 'package:management/Sartingpage.dart';
-import 'package:management/VideoScreen.dart';
-import 'package:management/profle.dart';
+import 'package:management/Screens/LoginScreen.dart';
+import 'package:management/Screens/Reminder.dart';
+import 'package:management/Screens/Registerpage.dart';
+import 'package:management/Screens/VideoScreen.dart';
+import 'package:management/Screens/profle.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:flutter/material.dart';
-import 'main_screen.dart';
-import 'homescreen.dart';
-import 'capture_screen.dart';
+import 'Screens/homescreen.dart';
+import 'Screens/capture_screen.dart';
 
 void main() {
    WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +26,8 @@ class PhotoNotesApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => StartingPage(),//routing to mainScreen in login.dart
+        '/login': (context) => LoginScreen(),//routing to mainScreen in login.dart
+        '/register':(context) => RegisterScreen(),
         '/home': (context) => HomeScreen(), //routing to homeScreen in homescreen.dart
         '/capture': (context) => CaptureScreen(), //routng to image adddition in capture.dart
         '/reminder':(contect) => ReminderScreen(), //routing to the reminder to where you can find the routing

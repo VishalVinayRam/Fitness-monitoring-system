@@ -35,7 +35,7 @@ class GlobalData {
   String get password => _password;
   int get age => _age;
   double get totalCaloriesConsumed => _totalCaloriesConsumed;
-  double  get bmi => _bmi;
+  double get bmi => _bmi;
   double get fat => _fat;
   String get lastDate => _lastDate;
 
@@ -44,23 +44,27 @@ class GlobalData {
     _name = value;
     saveToPrefs('name', value);
   }
-   set lastDate(String value) {
+
+  set lastDate(String value) {
     _lastDate = value;
     saveToPrefs('lastDate', value);
   }
+
   set height(double value) {
     _height = value;
     saveToPrefs('height', value.toString());
   }
 
- set bmi(double value) {
+  set bmi(double value) {
     _bmi = value;
     saveToPrefs('bmi', value.toString());
   }
-   set fat(double value) {
+
+  set fat(double value) {
     _fat = value;
     saveToPrefs('fat', value.toString());
   }
+
   set number(int value) {
     _number = value;
     saveToPrefs('number', value.toString());
@@ -105,19 +109,18 @@ class GlobalData {
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     _name = prefs.getString('name') ?? '';
-    _height =  0.0;
-    _weight = prefs.getDouble('weight') ?? 0.0;
-    _calorieGoal = prefs.getInt('calorieGoal') ?? 0;
-    _waterGoal = prefs.getInt('waterGoal') ?? 0;
+    _height = double.tryParse(prefs.getString('height') ?? '') ?? 0.0;
+    _weight = double.tryParse(prefs.getString('weight') ?? '') ?? 0.0;
+    _calorieGoal = int.tryParse(prefs.getString('calorieGoal') ?? '') ?? 0;
+    _waterGoal = int.tryParse(prefs.getString('waterGoal') ?? '') ?? 0;
     _photoUrl = prefs.getString('photoUrl');
-    _number = prefs.getInt('number') ?? 0;
+    _number = int.tryParse(prefs.getString('number') ?? '') ?? 0;
     _password = prefs.getString('password') ?? '';
-    _age = prefs.getInt('age') ?? 0;
-    _bmi = prefs.getDouble('bmi')??0;
-        _fat = prefs.getDouble('fat')??0;
-        _lastDate = prefs.getString('lastDate')??"";
-
-    _totalCaloriesConsumed = prefs.getDouble('totalCaloriesConsumed') ?? 0.0;
+    _age = int.tryParse(prefs.getString('age') ?? '') ?? 0;
+    _bmi = double.tryParse(prefs.getString('bmi') ?? '') ?? 0.0;
+    _fat = double.tryParse(prefs.getString('fat') ?? '') ?? 0.0;
+    _lastDate = prefs.getString('lastDate') ?? '';
+    _totalCaloriesConsumed = double.tryParse(prefs.getString('totalCaloriesConsumed') ?? '') ?? 0.0;
 
     String? lastResetDate = prefs.getString('lastResetDate');
     String currentDate = DateTime.now().toIso8601String().split('T')[0];
