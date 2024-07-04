@@ -7,6 +7,9 @@ class GlobalData {
    int _calorieGoal=  0; // calories per day
    int _waterGoal = 0; // ml per day
   String? _photoUrl = ""; // optional photo URL
+  int _number= 0;
+  String _password= '';
+  int _age = 18;
 
   // Singleton pattern for global state management
   static final GlobalData _singleton = GlobalData._internal();
@@ -24,6 +27,10 @@ class GlobalData {
   int get calorieGoal => _calorieGoal;
   int get waterGoal => _waterGoal;
   String? get photoUrl => _photoUrl;
+  int get number => _number;
+  String get password => password;
+    int get age => _age;
+
 
   // Setters
   set name(String value) {
@@ -35,7 +42,22 @@ class GlobalData {
     _height = value;
     saveToPrefs('height', value.toString());
   }
+  set number(int value)
+  {
+    _number = value;
+    saveToPrefs('number', number.toString());
+  }
 
+  set age(int value)
+  {
+    _number = value;
+    saveToPrefs('age',value.toString());
+  }
+  set password(String value)
+  {
+    password = value;
+    saveToPrefs('password', value);
+  }
   set weight(double value) {
     _weight = value;
     saveToPrefs('weight', value.toString());
@@ -65,6 +87,10 @@ class GlobalData {
     _calorieGoal = prefs.getInt('calorieGoal') ?? 0;
     _waterGoal = prefs.getInt('waterGoal') ?? 0;
     _photoUrl = prefs.getString('photoUrl');
+    _number = prefs.getInt('number')??0;
+    _password = prefs.getString('password')??'';
+        _age = prefs.getInt('age')??0;
+
   }
 
   // Private method to save a single value to shared preferences

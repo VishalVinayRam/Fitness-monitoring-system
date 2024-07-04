@@ -3,14 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:management/Reminder.dart';
 import 'package:management/capture_screen.dart';
 import 'package:management/homescreen.dart';
-import 'package:management/pedometer.dart';
-import 'package:gauge_indicator/gauge_indicator.dart';
-import 'package:management/themes/Fitness.dart';
+import 'package:management/models/Userdate.dart';
+import 'package:management/profle.dart';
 import 'package:management/widgets/Body_measurement.dart';
-import 'package:management/widgets/Graph_card.dart';
 import 'package:management/widgets/Hero_section.dart';
 import 'package:management/widgets/Water.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'models/photo.dart';
@@ -26,7 +23,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   int _totalCaloriesConsumed = 0;
   int _totalCaloriesReduced = 0;
   late TabController _tabController;
-
+GlobalData global = GlobalData();
 
   @override
   void initState() {
@@ -100,6 +97,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
+            DrawerHeader(child: 
+            Text(
+              global.name
+            )),
             SizedBox(
               height: MediaQuery.of(context).size.height*.12,
               child: Container(
@@ -135,6 +136,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => CaptureScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.supervised_user_circle),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()),
                 );
               },
             ),
