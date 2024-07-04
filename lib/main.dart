@@ -6,11 +6,12 @@
 //   runApp(MyApp());
 // }
 import 'package:management/Reminder.dart';
+import 'package:management/Sartingpage.dart';
 import 'package:management/VideoScreen.dart';
 import 'package:management/profle.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'main_screen.dart';
 import 'homescreen.dart';
 import 'capture_screen.dart';
 
@@ -32,7 +33,7 @@ class PhotoNotesApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => MainScreen(),//routing to mainScreen in login.dart
+        '/': (context) => StartingPage(),//routing to mainScreen in login.dart
         '/home': (context) => HomeScreen(), //routing to homeScreen in homescreen.dart
         '/capture': (context) => CaptureScreen(), //routng to image adddition in capture.dart
         '/reminder':(contect) => ReminderScreen(), //routing to the reminder to where you can find the routing

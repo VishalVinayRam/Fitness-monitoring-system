@@ -96,17 +96,14 @@ GlobalData global = GlobalData();
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(child: 
-            Text(
-              global.name
-            )),
+            
             SizedBox(
               height: MediaQuery.of(context).size.height*.12,
               child: Container(
             ),
             ),
              ListTile(
-              leading: Icon(Icons.home),
+              leading: Icon(Icons.photo),
               title: Text('Gallery'),
               onTap: () {
                 Navigator.pop(context);

@@ -105,7 +105,7 @@ class GlobalData {
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     _name = prefs.getString('name') ?? '';
-    _height = prefs.getDouble('height') ?? 0.0;
+    _height =  0.0;
     _weight = prefs.getDouble('weight') ?? 0.0;
     _calorieGoal = prefs.getInt('calorieGoal') ?? 0;
     _waterGoal = prefs.getInt('waterGoal') ?? 0;
