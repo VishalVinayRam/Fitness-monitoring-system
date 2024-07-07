@@ -1,4 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class GlobalData {
   String _name = "";
@@ -130,10 +132,16 @@ class GlobalData {
       await prefs.setString('lastResetDate', currentDate);
     }
   }
+  
 
   // Private method to save a single value to shared preferences
-  Future<void> saveToPrefs(String key, String value) async {
+ Future<void> saveToPrefs(String key, String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(key, value);
+    // Update Firestore as well
+    final userDoc = FirebaseFirestore.instance.collection('users').doc('globalData');
+    await userDoc.set({
+      key: value,
+    }, SetOptions(merge: true));
   }
 }

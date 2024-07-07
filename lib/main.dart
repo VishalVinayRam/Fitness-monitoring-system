@@ -7,9 +7,16 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:flutter/material.dart';
 import 'Screens/homescreen.dart';
 import 'Screens/capture_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+
+Future<void> main() async {
    WidgetsFlutterBinding.ensureInitialized();
+     await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+     );
+
   tzdata.initializeTimeZones();
   runApp(PhotoNotesApp());
 }
@@ -24,7 +31,7 @@ class PhotoNotesApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      initialRoute: '/register',
       routes: {
         '/login': (context) => LoginScreen(),//routing to mainScreen in login.dart
         '/register':(context) => RegisterScreen(),
