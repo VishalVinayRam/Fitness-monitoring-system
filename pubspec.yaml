@@ -41,6 +41,10 @@ dependencies:
   build_runner: ^2.1.5
   json_serializable: ^6.1.5
   pedometer: ^4.0.1
+  flutter_local_notifications: ^17.2.1
+  timezone: ^0.9.4
+  gauge_indicator: ^0.4.3
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
