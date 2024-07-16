@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:management/Reminder.dart';
-import 'package:management/pedometer.dart';
-
+import 'package:flutter/widgets.dart';
+import 'package:management/Screens/Reminder.dart';
+import 'package:management/Screens/capture_screen.dart';
+import 'package:management/Screens/homescreen.dart';
+import 'package:management/models/Userdate.dart';
+import 'package:management/Screens/profle.dart';
+import 'package:management/widgets/Body_measurement.dart';
+import 'package:management/widgets/Hero_section.dart';
+import 'package:management/widgets/Water.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'models/photo.dart';
+import '../models/photo.dart';
 
-class HomeScreen extends StatefulWidget {
+class MainScreen extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
   List<Photo> _photos = [];
   DateTime _selectedDate = DateTime.now();
   int _totalCaloriesConsumed = 0;
   int _totalCaloriesReduced = 0;
   late TabController _tabController;
-
+GlobalData global = GlobalData();
 
   @override
   void initState() {
@@ -85,30 +91,80 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         actions: [
           IconButton(onPressed:(){ Navigator.push(context,MaterialPageRoute(builder: (context)=>ReminderScreen()));}, icon: Icon(Icons.lock_clock))
         ],
-        leading:  IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectDate(context),
-          ),
-        title: Text('Home'),
-         bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'Food'),
-            Tab(text: 'Exercise'),
-            Tab(text: "Steps",)
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            
+            SizedBox(
+              height: MediaQuery.of(context).size.height*.12,
+              child: Container(
+            ),
+            ),
+             ListTile(
+              leading: Icon(Icons.photo),
+              title: Text('Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.lock_clock),
+              title: Text('Reminder'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReminderScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.camera),
+              title: Text('Capture'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CaptureScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.supervised_user_circle),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()),
+                );
+              },
+            ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children:[
-          filteredPhotos.isEmpty
-          ? Center(child: Text('No photos for selected date')):
-          _buildCategoryView('Food'),
-          _buildCategoryView('Exercise'),
-          StepsCounting(),
-        ],
-      ),
+      body:  SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Container(
+            child: Column(
+              children: [
+              Container(
+                margin: EdgeInsets.all(15),
+                height: 200,
+                child:MediterranesnDietView(eaten: _totalCaloriesConsumed,burned: _totalCaloriesReduced,),
+              ),
+              Container(
+                margin:EdgeInsets.all(15),
+                child: WaterView()),
+              BodyMeasurementView(),
+            ]),
+          ),),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/capture');
@@ -170,6 +226,8 @@ Widget _buildCategoryView(String category) {
                       ),
                     ],
                   )
+
+     
           );
   }
 }

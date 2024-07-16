@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:management/models/Userdate.dart';
-import 'package:management/profile_edit.dart';
+import 'package:management/Screens/profile_edit.dart';
 
 
 
