@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:management/Screens/homescreen.dart';
+import 'package:management/Screens/main_screen.dart';
 import 'package:management/models/Userdate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Login successful, navigate to the home screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()), // Replace with your home screen
+          MaterialPageRoute(builder: (context) => MainScreen()), // Replace with your home screen
         );
       } else {
         // Show error message

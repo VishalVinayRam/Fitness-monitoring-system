@@ -63,8 +63,40 @@ class Photo {
       'calories': calories,
     };
   }
-}
 
+  Map<String, dynamic> toMap() {
+    return {
+      'image': image,
+      'note': note,
+      'category': category,
+      'date': date,
+      'calories': calories,
+      'foodName': foodName,
+      'foodTime': foodTime,
+      'quantity': quantity,
+      'foodType': foodType,
+      'exerciseName': exerciseName,
+      'reps': reps,
+      'weight': weight,
+    };
+  }
+  static Photo fromMap(Map<String, dynamic> map) {
+    return Photo(
+      image: map['image'],
+      note: map['note'],
+      category: map['category'],
+      date: DateTime.parse(map['date']),
+      calories: map['calories'],
+      foodName: map['foodName'],
+      foodTime: map['foodTime'],
+      quantity: map['quantity'],
+      foodType: map['foodType'],
+      exerciseName: map['exerciseName'],
+      reps: map['reps'],
+      weight: map['weight'],
+    );
+  }
+}
 List<Photo> photosFromJson(String str) =>
     List<Photo>.from(json.decode(str).map((x) => Photo.fromJson(x)));
 

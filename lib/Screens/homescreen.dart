@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:management/Screens/Reminder.dart';
-import 'package:management/widgets/pedometer.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/photo.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,36 +16,50 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int _totalCaloriesReduced = 0;
   late TabController _tabController;
 
-
   @override
   void initState() {
     super.initState();
-      _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
 
     _loadPhotos();
   }
 
   Future<void> _loadPhotos() async {
+    // Load photos from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final photosString = prefs.getString('photos');
+    List<Photo> localPhotos = [];
     if (photosString != null) {
-      final List<Photo> photos = photosFromJson(photosString);
-      setState(() {
-        _photos = photos;
-      });
-      _updateCalorieCount();
+      localPhotos = photosFromJson(photosString);
     }
+
+    // Load photos from Firestore
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('photos').get();
+    final List<Photo> firestorePhotos = snapshot.docs.map((doc) {
+      return Photo.fromMap(doc.data() as Map<String, dynamic>);
+    }).toList();
+
+    // Combine local and Firestore photos
+    final List<Photo> combinedPhotos = [];
+    combinedPhotos.addAll(localPhotos);
+    combinedPhotos.addAll(firestorePhotos);
+
+    setState(() {
+      _photos = combinedPhotos;
+    });
+
+    _updateCalorieCount();
   }
 
   void _updateCalorieCount() {
     int consumed = 0;
     int reduced = 0;
     for (var photo in _photos) {
-      if (photo.date.toString()==_selectedDate) {
+      if (photo.date.toString().split(' ')[0] == _selectedDate.toString().split(' ')[0]) {
         if (photo.category == 'Food') {
-          consumed += photo.calories??0;
+          consumed += photo.calories ?? 0;
         } else if (photo.category == 'Exercise') {
-          reduced += photo.calories??0;
+          reduced += photo.calories ?? 0;
         }
       }
     }
@@ -58,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   List<Photo> getPhotosForDate(DateTime date) {
-    return _photos.where((photo) => photo.date.toString()==_selectedDate).toList();
+    return _photos.where((photo) => photo.date.toString().split(' ')[0] == date.toString().split(' ')[0]).toList();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -83,33 +95,38 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         actions: [
-                    IconButton(
+          IconButton(
             icon: Icon(Icons.calendar_today),
             onPressed: () => _selectDate(context),
           ),
-
-          IconButton(onPressed:(){ Navigator.push(context,MaterialPageRoute(builder: (context)=>ReminderScreen()));}, icon: Icon(Icons.lock_clock)),
         ],
-        leading:                      IconButton(onPressed: (){Navigator.pop(context);}, icon:Icon(Icons.arrow_back)),
-
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back),
+        ),
         title: Text('Gallery'),
-         bottom: TabBar(
+        bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(text: 'Food'),
             Tab(text: 'Exercise'),
-            Tab(text: "Steps",)
+            Tab(text: "Steps"),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children:[
+        children: [
           filteredPhotos.isEmpty
-          ? Center(child: Text('No photos for selected date')):
-          _buildCategoryView('Food'),
-          _buildCategoryView('Exercise'),
-          StepsCounting(),
+              ? Center(child: Text('No photos for selected date'))
+              : _buildCategoryView('Food'),
+          filteredPhotos.isEmpty
+              ? Center(child: Text('No photos for selected date'))
+              : _buildCategoryView('Exercise'),
+          // Replace with your Steps widget or component
+          Center(child: Text('Steps content placeholder')),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -120,7 +137,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
-Widget _buildCategoryView(String category) {
+
+  Widget _buildCategoryView(String category) {
     final categoryPhotos = _photos.where((p) => p.category == category).toList();
     return categoryPhotos.isEmpty
         ? Center(child: Text('No photos yet'))
@@ -136,43 +154,43 @@ Widget _buildCategoryView(String category) {
               return _buildPhotoTile(categoryPhotos[index]);
             },
           );
-}
+  }
+
   Widget _buildPhotoTile(Photo photo) {
     return Card(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Image.memory(
-                          base64Decode(photo.image),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                      ),
-                      // 9538963355
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
-                            if (photo.category == 'Food') ...[
-                              Text('Food Name: ${photo.foodName}'),
-                              Text('Time: ${photo.foodTime}'),
-                              Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
-                              Text('Calories: ${photo.calories}'),
-                            ],
-                            if (photo.category == 'Exercise') ...[
-                              Text('Exercise: ${photo.exerciseName}'),
-                              Text('Reps: ${photo.reps}'),
-                              Text('Weight: ${photo.weight} kg'),
-                              Text('Calories: ${photo.calories}'),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-          );
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Image.memory(
+              base64Decode(photo.image),
+              fit: BoxFit.cover,
+              width: double.infinity,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(photo.note, style: TextStyle(fontWeight: FontWeight.bold)),
+                if (photo.category == 'Food') ...[
+                  Text('Food Name: ${photo.foodName}'),
+                  Text('Time: ${photo.foodTime}'),
+                  Text('Quantity: ${photo.quantity} ${photo.foodType == 'drinks' ? 'ml' : 'gm'}'),
+                  Text('Calories: ${photo.calories}'),
+                ],
+                if (photo.category == 'Exercise') ...[
+                  Text('Exercise: ${photo.exerciseName}'),
+                  Text('Reps: ${photo.reps}'),
+                  Text('Weight: ${photo.weight} kg'),
+                  Text('Calories: ${photo.calories}'),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

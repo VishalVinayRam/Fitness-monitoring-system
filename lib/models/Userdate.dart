@@ -17,9 +17,6 @@ class GlobalData {
 
   // Singleton pattern for global state management
 
-  double bmi = 0.0;
-
-  double fat = 0.0;
 
   var email;
 

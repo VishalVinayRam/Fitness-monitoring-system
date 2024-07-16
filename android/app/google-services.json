@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "390543662830",
+    "project_id": "fitness-monitoring-system-app",
+    "storage_bucket": "fitness-monitoring-system-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:390543662830:android:994651918d934f0aef9dff",
+        "android_client_info": {
+          "package_name": "com.example.management"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmx9NevrQe7fTRhz1Xy8te2vCiYzX9VKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

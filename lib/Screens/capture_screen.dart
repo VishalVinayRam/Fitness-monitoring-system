@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/photo.dart';
 
 class CaptureScreen extends StatefulWidget {
@@ -24,9 +25,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
   String _foodType = 'solid';
   DateTime _selectedDate = DateTime.now();
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -36,11 +37,6 @@ class _CaptureScreenState extends State<CaptureScreen> {
 
   Future<void> _savePhoto() async {
     if (_image == null || _noteController.text.isEmpty) return;
-    final prefs = await SharedPreferences.getInstance();
-    final photosString = prefs.getString('photos');
-    final List<Photo> photos = photosString != null
-        ? photosFromJson(photosString)
-        : [];
     final photo = Photo(
       image: base64Encode(_image!.readAsBytesSync()),
       note: _noteController.text,
@@ -55,8 +51,19 @@ class _CaptureScreenState extends State<CaptureScreen> {
       reps: _category == 'Exercise' ? int.tryParse(_repsController.text) : null,
       weight: _category == 'Exercise' ? int.tryParse(_weightController.text) : null,
     );
+
+    // Save photo to Firebase Firestore
+    FirebaseFirestore.instance.collection('photos').add(photo.toMap());
+
+    // Save photo locally using SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final photosString = prefs.getString('photos');
+    final List<Photo> photos = photosString != null
+        ? photosFromJson(photosString)
+        : [];
     photos.add(photo);
     await prefs.setString('photos', photosToJson(photos));
+
     Navigator.pop(context);
   }
 
@@ -73,6 +80,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
       });
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -167,9 +176,14 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ],
             ),
             ElevatedButton(
-              onPressed: _pickImage,
-              child: Text('Pick Image'),
+              onPressed:()=> _pickImage(ImageSource.camera),
+              child: Text('Pick Image from Camera'),
             ),
+                            ElevatedButton(
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  child: Text('Pick from Gallery'),
+                ),
+
             ElevatedButton(
               onPressed: _savePhoto,
               child: Text('Save Photo'),
