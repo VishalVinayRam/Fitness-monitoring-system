@@ -32,7 +32,7 @@ class PhotoNotesApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => MainScreen(),//routing to mainScreen in login.dart
+        '/': (context) => RegisterScreen(),//routing to mainScreen in login.dart
         '/home': (context) => HomeScreen(), //routing to homeScreen in homescreen.dart
         '/capture': (context) => CaptureScreen(), //routng to image adddition in capture.dart
         '/reminder':(contect) => ReminderScreen(), //routing to the reminder to where you can find the routing

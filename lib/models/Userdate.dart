@@ -12,13 +12,13 @@ class GlobalData {
   int _age = 18;
 
   // Singleton pattern for global state management
-  static final GlobalData _singleton = GlobalData._internal();
 
-  factory GlobalData() {
-    return _singleton;
-  }
+  double bmi = 0.0;
 
-  GlobalData._internal();
+  double fat = 0.0;
+
+  var email;
+
 
   // Getters
   String get name => _name;
@@ -30,6 +30,8 @@ class GlobalData {
   int get number => _number;
   String get password => password;
     int get age => _age;
+
+  set email(String email) {}
 
 
   // Setters
