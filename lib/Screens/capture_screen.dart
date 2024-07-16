@@ -52,143 +52,140 @@ class _CaptureScreenState extends State<CaptureScreen> {
       weight: _category == 'Exercise' ? int.tryParse(_weightController.text) : null,
     );
 
-    // Save photo to Firebase Firestore
-    FirebaseFirestore.instance.collection('photos').add(photo.toMap());
-
-    // Save photo locally using SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    final photosString = prefs.getString('photos');
-    final List<Photo> photos = photosString != null
-        ? photosFromJson(photosString)
-        : [];
-    photos.add(photo);
-    await prefs.setString('photos', photosToJson(photos));
-
-    Navigator.pop(context);
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2015, 8),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
+    final userId = prefs.getString('userId');
+    if (userId == null) {
+      // Handle error: user ID not found
+      return;
     }
-  }
 
-  
+    final firestore = FirebaseFirestore.instance;
+    final userRef = firestore.collection('users').doc(userId);
+    final photoRef = userRef.collection('photos').doc();
+
+    await photoRef.set({
+      'image': photo.image,
+      'note': photo.note,
+      'category': photo.category,
+      'date': photo.date,
+      'calories': photo.calories,
+      'foodName': photo.foodName,
+      'foodTime': photo.foodTime,
+      'quantity': photo.quantity,
+      'foodType': photo.foodType,
+      'exerciseName': photo.exerciseName,
+      'reps': photo.reps,
+      'weight': photo.weight,
+    });
+
+    Navigator.pop(context); // Go back to the previous screen
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Capture Photo')),
+      appBar: AppBar(
+        title: Text('Capture Photo'),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _image == null ? Text('No image selected.') : Image.file(_image!),
-            TextField(
-              controller: _noteController,
-              decoration: InputDecoration(labelText: 'Note'),
-            ),
-            DropdownButton<String>(
-              value: _category,
-              items: ['Food', 'Exercise'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _category = newValue!;
-                });
-              },
-            ),
-            if (_category == 'Food') ...[
-              TextField(
-                controller: _foodNameController,
-                decoration: InputDecoration(labelText: 'Food Name'),
+        padding: EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              _image == null
+                  ? Text('No image selected.')
+                  : Image.file(_image!),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () => _pickImage(ImageSource.camera),
+                child: Text('Take Photo'),
+              ),
+              ElevatedButton(
+                onPressed: () => _pickImage(ImageSource.gallery),
+                child: Text('Choose from Gallery'),
               ),
               TextField(
-                controller: _foodTimeController,
-                decoration: InputDecoration(labelText: 'Time'),
-              ),
-              TextField(
-                controller: _quantityController,
-                decoration: InputDecoration(labelText: 'Quantity'),
-                keyboardType: TextInputType.number,
+                controller: _noteController,
+                decoration: InputDecoration(labelText: 'Note'),
               ),
               DropdownButton<String>(
-                value: _foodType,
-                items: ['solid', 'drinks'].map((String value) {
+                value: _category,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _category = newValue!;
+                  });
+                },
+                items: <String>['Food', 'Exercise']
+                    .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
                   );
                 }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _foodType = newValue!;
-                  });
-                },
               ),
-              TextField(
-                controller: _caloriesController,
-                decoration: InputDecoration(labelText: 'Calories'),
-                keyboardType: TextInputType.number,
+              _category == 'Food'
+                  ? Column(
+                      children: <Widget>[
+                        TextField(
+                          controller: _foodNameController,
+                          decoration: InputDecoration(labelText: 'Food Name'),
+                        ),
+                        TextField(
+                          controller: _foodTimeController,
+                          decoration: InputDecoration(labelText: 'Food Time'),
+                        ),
+                        TextField(
+                          controller: _quantityController,
+                          decoration: InputDecoration(labelText: 'Quantity'),
+                          keyboardType: TextInputType.number,
+                        ),
+                        DropdownButton<String>(
+                          value: _foodType,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _foodType = newValue!;
+                            });
+                          },
+                          items: <String>['solid', 'liquid']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                        TextField(
+                          controller: _caloriesController,
+                          decoration: InputDecoration(labelText: 'Calories'),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: <Widget>[
+                        TextField(
+                          controller: _exerciseNameController,
+                          decoration: InputDecoration(labelText: 'Exercise Name'),
+                        ),
+                        TextField(
+                          controller: _repsController,
+                          decoration: InputDecoration(labelText: 'Reps'),
+                          keyboardType: TextInputType.number,
+                        ),
+                        TextField(
+                          controller: _weightController,
+                          decoration: InputDecoration(labelText: 'Weight'),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
+                    ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _savePhoto,
+                child: Text('Save Photo'),
               ),
             ],
-            if (_category == 'Exercise') ...[
-              TextField(
-                controller: _exerciseNameController,
-                decoration: InputDecoration(labelText: 'Exercise Name'),
-              ),
-              TextField(
-                controller: _repsController,
-                decoration: InputDecoration(labelText: 'Reps'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: _weightController,
-                decoration: InputDecoration(labelText: 'Weight (kg)'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: _caloriesController,
-                decoration: InputDecoration(labelText: 'Calories'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Selected Date: ${_selectedDate.toString().split(' ')[0]}'),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context),
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed:()=> _pickImage(ImageSource.camera),
-              child: Text('Pick Image from Camera'),
-            ),
-                            ElevatedButton(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  child: Text('Pick from Gallery'),
-                ),
-
-            ElevatedButton(
-              onPressed: _savePhoto,
-              child: Text('Save Photo'),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final prefs = await SharedPreferences.getInstance();
-      final storedNumber = int.tryParse(prefs.getString('number') ?? '') ?? 0;
+      final storedNumber = prefs.getInt('number') ?? 0;
       final storedPassword = prefs.getString('password') ?? '';
 
       if (storedNumber == int.parse(_numberController.text) &&
@@ -66,6 +66,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: _login,
                 child: Text('Login'),
               ),
+              TextButton(onPressed: (){
+                Navigator.popAndPushNamed(context, '/register');
+              }, child: Text("Register"))
             ],
           ),
         ),

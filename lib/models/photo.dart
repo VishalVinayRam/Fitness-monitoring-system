@@ -85,7 +85,7 @@ class Photo {
       image: map['image'],
       note: map['note'],
       category: map['category'],
-      date: DateTime.parse(map['date']),
+      date: DateTime.now(),
       calories: map['calories'],
       foodName: map['foodName'],
       foodTime: map['foodTime'],

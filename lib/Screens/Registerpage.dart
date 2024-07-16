@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:management/Screens/LoginScreen.dart';
 import 'package:management/models/Userdate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore package
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -24,6 +26,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _saveData() async {
     if (_formKey.currentState!.validate()) {
+      final userId = Uuid().v4();
+
+      globalData.userId = userId;
       globalData.name = _nameController.text;
       globalData.height = double.parse(_heightController.text);
       globalData.weight = double.parse(_weightController.text);
@@ -35,7 +40,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
       globalData.bmi = double.parse(_bmiController.text);
       globalData.fat = double.parse(_fatController.text);
 
-      await globalData.init(); // Refresh data from shared preferences
+      // Save user data to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userId', userId);
+      await prefs.setString('name', globalData.name);
+      await prefs.setDouble('height', globalData.height);
+      await prefs.setDouble('weight', globalData.weight);
+      await prefs.setInt('calorieGoal', globalData.calorieGoal);
+      await prefs.setInt('waterGoal', globalData.waterGoal);
+      await prefs.setInt('number', globalData.number);
+      await prefs.setString('password', globalData.password);
+      await prefs.setInt('age', globalData.age);
+      await prefs.setDouble('bmi', globalData.bmi);
+      await prefs.setDouble('fat', globalData.fat);
+
+      // Save user data to Firebase Firestore
+      FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'name': globalData.name,
+        'height': globalData.height,
+        'weight': globalData.weight,
+        'calorieGoal': globalData.calorieGoal,
+        'waterGoal': globalData.waterGoal,
+        'number': globalData.number,
+        'password': globalData.password,
+        'age': globalData.age,
+        'bmi': globalData.bmi,
+        'fat': globalData.fat,
+      });
 
       // Navigate to the next screen or show a success message
       Navigator.pushReplacement(
@@ -122,6 +153,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: _saveData,
                   child: Text('Register'),
                 ),
+                 TextButton(onPressed: (){
+                Navigator.popAndPushNamed(context, '/login');
+              }, child: Text("Login"))
               ],
             ),
           ),

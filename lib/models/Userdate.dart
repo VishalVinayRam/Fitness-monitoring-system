@@ -20,6 +20,8 @@ class GlobalData {
 
   var email;
 
+  String userId = "";
+
 
   // Getters
   String get name => _name;
