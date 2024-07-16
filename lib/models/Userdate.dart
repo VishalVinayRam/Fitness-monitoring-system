@@ -31,7 +31,6 @@ class GlobalData {
   String get password => password;
     int get age => _age;
 
-  set email(String email) {}
 
 
   // Setters
