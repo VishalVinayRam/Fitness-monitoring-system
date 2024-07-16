@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:management/Reminder.dart';
-import 'package:management/pedometer.dart';
+import 'package:management/Screens/Reminder.dart';
+import 'package:management/widgets/pedometer.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'models/photo.dart';
+import '../models/photo.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -83,13 +83,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(onPressed:(){ Navigator.push(context,MaterialPageRoute(builder: (context)=>ReminderScreen()));}, icon: Icon(Icons.lock_clock))
-        ],
-        leading:  IconButton(
+                    IconButton(
             icon: Icon(Icons.calendar_today),
             onPressed: () => _selectDate(context),
           ),
-        title: Text('Home'),
+
+          IconButton(onPressed:(){ Navigator.push(context,MaterialPageRoute(builder: (context)=>ReminderScreen()));}, icon: Icon(Icons.lock_clock)),
+        ],
+        leading:                      IconButton(onPressed: (){Navigator.pop(context);}, icon:Icon(Icons.arrow_back)),
+
+        title: Text('Gallery'),
          bottom: TabBar(
           controller: _tabController,
           tabs: [
