@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="14dp"
+    android:gravity="center_vertical">
+
+    <!-- Header row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="LifeTracker"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="#AAFFFFFF"
+            android:letterSpacing="0.08"/>
+
+        <TextView
+            android:id="@+id/widget_upcoming_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 upcoming"
+            android:textSize="10sp"
+            android:textColor="#AAFFFFFF"/>
+    </LinearLayout>
+
+    <!-- Next plan title -->
+    <TextView
+        android:id="@+id/widget_upcoming_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No upcoming plans"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFFFF"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_marginBottom="4dp"/>
+
+    <!-- Date -->
+    <TextView
+        android:id="@+id/widget_upcoming_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp"
+        android:textColor="#CCFFFFFF"
+        android:drawablePadding="4dp"
+        android:layout_marginBottom="2dp"/>
+
+    <!-- Category pill -->
+    <TextView
+        android:id="@+id/widget_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="10sp"
+        android:textColor="#FFFFFFFF"
+        android:background="@drawable/category_pill"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"/>
+
+</LinearLayout>
