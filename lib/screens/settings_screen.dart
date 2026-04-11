@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/entry.dart';
 import '../services/notification_service.dart';
@@ -15,16 +16,58 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   String _storagePath = 'Loading...';
+  TimeOfDay? _photoReminderTime;
 
   @override
   void initState() {
     super.initState();
     _loadPath();
+    _loadPhotoReminderTime();
   }
 
   Future<void> _loadPath() async {
     final path = await StorageService.instance.storagePath;
     setState(() => _storagePath = path);
+  }
+
+  Future<void> _loadPhotoReminderTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('photo_reminder_time');
+    if (saved != null) {
+      final parts = saved.split(':');
+      setState(() => _photoReminderTime =
+          TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1])));
+    }
+  }
+
+  Future<void> _setPhotoReminder() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _photoReminderTime ?? const TimeOfDay(hour: 20, minute: 0),
+      helpText: 'Set daily photo reminder time',
+    );
+    if (picked == null) return;
+    setState(() => _photoReminderTime = picked);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('photo_reminder_time',
+        '${picked.hour}:${picked.minute.toString().padLeft(2, '0')}');
+    await NotificationService.instance
+        .scheduleDailyPhotoReminder(picked.hour, picked.minute);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Photo reminder set for ${picked.format(context)}')));
+    }
+  }
+
+  Future<void> _cancelPhotoReminder() async {
+    await NotificationService.instance.cancelPhotoReminder();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('photo_reminder_time');
+    setState(() => _photoReminderTime = null);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Photo reminder cancelled')));
+    }
   }
 
   Future<void> _requestPermission() async {
@@ -99,6 +142,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: FilledButton.tonal(
               onPressed: _requestNotificationPermission,
               child: const Text('Enable'),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_a_photo_outlined),
+            title: const Text('Daily photo reminder'),
+            subtitle: Text(_photoReminderTime != null
+                ? 'Every day at ${_photoReminderTime!.format(context)}'
+                : 'Not set'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FilledButton.tonal(
+                  onPressed: _setPhotoReminder,
+                  child: Text(_photoReminderTime != null ? 'Change' : 'Set'),
+                ),
+                if (_photoReminderTime != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.cancel_outlined),
+                    onPressed: _cancelPhotoReminder,
+                    tooltip: 'Cancel reminder',
+                  ),
+                ],
+              ],
             ),
           ),
 

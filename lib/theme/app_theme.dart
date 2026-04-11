@@ -41,6 +41,12 @@ class AppTheme {
         ),
       );
 
+  // Hex string → Flutter Color
+  static Color colorFromHex(String hex) {
+    final h = hex.replaceAll('#', '');
+    return Color(int.parse('FF$h', radix: 16));
+  }
+
   // Type colors
   static Color typeColor(EntryTypeColor t) {
     switch (t) {

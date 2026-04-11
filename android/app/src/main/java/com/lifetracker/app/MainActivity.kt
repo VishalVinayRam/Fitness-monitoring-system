@@ -1,3 +1,3 @@
 package com.lifetracker.app
 
-class MainActivity : io.flutter.embedding.android.FlutterActivity()
+class MainActivity : io.flutter.embedding.android.FlutterFragmentActivity()

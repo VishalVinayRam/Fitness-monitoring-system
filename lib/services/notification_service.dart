@@ -16,6 +16,10 @@ class NotificationService {
   static const _channelName = 'Plans & Reminders';
   static const _channelDesc = 'Notifications for your upcoming plans';
 
+  static const _photoChannelId = 'photo_reminder';
+  static const _photoChannelName = 'Daily Photo Reminder';
+  static const _photoNotifId = 999001;
+
   Future<void> init() async {
     tz.initializeTimeZones();
 
@@ -37,10 +41,16 @@ class NotificationService {
       description: _channelDesc,
       importance: Importance.high,
     );
-    await _plugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    const photoChannel = AndroidNotificationChannel(
+      _photoChannelId,
+      _photoChannelName,
+      description: 'Daily end-of-day reminder to capture a photo',
+      importance: Importance.defaultImportance,
+    );
+    final androidImpl = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    await androidImpl?.createNotificationChannel(channel);
+    await androidImpl?.createNotificationChannel(photoChannel);
   }
 
   Future<bool> requestPermission() async {
@@ -88,4 +98,39 @@ class NotificationService {
   }
 
   Future<void> cancelAll() async => _plugin.cancelAll();
+
+  // ── Daily photo reminder ────────────────────────────────────────────────────
+
+  /// Schedules (or reschedules) a daily photo reminder at [hour]:[minute].
+  Future<void> scheduleDailyPhotoReminder(int hour, int minute) async {
+    await cancelPhotoReminder();
+
+    final now = DateTime.now();
+    var next = DateTime(now.year, now.month, now.day, hour, minute);
+    if (next.isBefore(now)) next = next.add(const Duration(days: 1));
+
+    await _plugin.zonedSchedule(
+      _photoNotifId,
+      '📸 End of day',
+      "Time to capture your day! Open the Photos tab.",
+      tz.TZDateTime.from(next, tz.local),
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _photoChannelId,
+          _photoChannelName,
+          channelDescription: 'Daily end-of-day reminder to capture a photo',
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+        ),
+        iOS: const DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
+  Future<void> cancelPhotoReminder() async =>
+      _plugin.cancel(_photoNotifId);
 }

@@ -9,7 +9,9 @@ import '../theme/app_theme.dart';
 import '../widgets/entry_card.dart';
 import 'add_edit_screen.dart';
 import 'calendar_screen.dart';
+import 'camera_screen.dart';
 import 'detail_screen.dart';
+import 'more_screen.dart';
 import 'settings_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -26,7 +28,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<Entry> _entries = [];
   bool _loading = true;
-  int _navIndex = 0; // 0 = list, 1 = calendar
+  int _navIndex = 0; // 0 = list, 1 = calendar, 2 = camera
+  final GlobalKey<_CameraScreenWrapperState> _cameraKey = GlobalKey();
+  bool _fabOpen = false;
 
   @override
   void initState() {
@@ -102,11 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _ListView(entries: _entries, onRefresh: _refresh),
                 CalendarScreen(entries: _entries, onRefresh: _refresh),
+                _CameraScreenWrapper(key: _cameraKey),
+                const MoreScreen(),
               ],
             ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _navIndex,
-        onDestinationSelected: (i) => setState(() => _navIndex = i),
+        onDestinationSelected: (i) =>
+            setState(() { _navIndex = i; _fabOpen = false; }),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.list_outlined),
@@ -118,43 +125,92 @@ class _HomeScreenState extends State<HomeScreen> {
             selectedIcon: Icon(Icons.calendar_month),
             label: 'Calendar',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.camera_alt_outlined),
+            selectedIcon: Icon(Icons.camera_alt),
+            label: 'Photos',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.apps_outlined),
+            selectedIcon: Icon(Icons.apps),
+            label: 'More',
+          ),
         ],
       ),
-      floatingActionButton: _buildFab(scheme),
+      floatingActionButton: _navIndex == 2
+          ? FloatingActionButton(
+              heroTag: 'camera_fab',
+              onPressed: () => _cameraKey.currentState?.showSourcePicker(),
+              child: const Icon(Icons.add_a_photo_outlined),
+            )
+          : _navIndex == 3
+              ? null
+              : _buildFab(scheme),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // Dim background when FAB menu is open
+      extendBody: true,
     );
   }
+
+  void _closeFab() => setState(() => _fabOpen = false);
 
   Widget _buildFab(ColorScheme scheme) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        _MiniButton(
-          icon: Icons.sticky_note_2_outlined,
-          label: 'Note',
-          color: AppTheme.typeColor(EntryTypeColor.note),
-          onTap: () => _openAdd(EntryType.note),
+        // Expanded mini-buttons — only visible when open
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          alignment: Alignment.bottomRight,
+          child: _fabOpen
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _MiniButton(
+                      icon: Icons.sticky_note_2_outlined,
+                      label: 'Note',
+                      color: AppTheme.typeColor(EntryTypeColor.note),
+                      onTap: () {
+                        _closeFab();
+                        _openAdd(EntryType.note);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    _MiniButton(
+                      icon: Icons.event_outlined,
+                      label: 'Plan',
+                      color: AppTheme.typeColor(EntryTypeColor.futurePlan),
+                      onTap: () {
+                        _closeFab();
+                        _openAdd(EntryType.futurePlan);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    _MiniButton(
+                      icon: Icons.history,
+                      label: 'Past Event',
+                      color: AppTheme.typeColor(EntryTypeColor.pastEvent),
+                      onTap: () {
+                        _closeFab();
+                        _openAdd(EntryType.pastEvent);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                )
+              : const SizedBox.shrink(),
         ),
-        const SizedBox(height: 8),
-        _MiniButton(
-          icon: Icons.event_outlined,
-          label: 'Plan',
-          color: AppTheme.typeColor(EntryTypeColor.futurePlan),
-          onTap: () => _openAdd(EntryType.futurePlan),
-        ),
-        const SizedBox(height: 8),
-        _MiniButton(
-          icon: Icons.history,
-          label: 'Past Event',
-          color: AppTheme.typeColor(EntryTypeColor.pastEvent),
-          onTap: () => _openAdd(EntryType.pastEvent),
-        ),
-        const SizedBox(height: 12),
         FloatingActionButton(
           heroTag: 'main_fab',
-          onPressed: () => _openAdd(EntryType.note),
-          child: const Icon(Icons.add),
+          onPressed: () => setState(() => _fabOpen = !_fabOpen),
+          child: AnimatedRotation(
+            turns: _fabOpen ? 0.125 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Icon(Icons.add),
+          ),
         ),
       ],
     );
@@ -543,4 +599,25 @@ class _EmptyState extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Thin wrapper so HomeScreen can call showSourcePicker via GlobalKey
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CameraScreenWrapper extends StatefulWidget {
+  const _CameraScreenWrapper({super.key});
+
+  @override
+  State<_CameraScreenWrapper> createState() => _CameraScreenWrapperState();
+}
+
+class _CameraScreenWrapperState extends State<_CameraScreenWrapper> {
+  final GlobalKey<CameraScreenState> _innerKey = GlobalKey();
+
+  void showSourcePicker() => _innerKey.currentState?.showSourcePicker();
+
+  @override
+  Widget build(BuildContext context) =>
+      CameraScreen(key: _innerKey);
 }

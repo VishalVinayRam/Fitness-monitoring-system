@@ -5,11 +5,20 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../models/entry.dart';
+import '../models/expense.dart';
+import '../models/habit.dart';
+import '../models/journal_entry.dart';
 
 class StorageService {
   static const String _dataFileName = 'data.json';
+  static const String _labelsFileName = 'photo_labels.json';
+  static const String _habitsFileName = 'habits.json';
+  static const String _expensesFileName = 'expenses.json';
+  static const String _journalFileName = 'journal.json';
   static const String _appFolderName = 'LifeTracker';
   static const String _photosFolderName = 'photos';
+
+  static const List<String> _defaultLabels = ['medicine', 'ss', 'documents'];
 
   static StorageService? _instance;
   static StorageService get instance => _instance ??= StorageService._();
@@ -54,9 +63,36 @@ class StorageService {
     return dir;
   }
 
+  Future<Directory> getLabelPhotosDir(String label) async {
+    final base = await appDir;
+    final dir = Directory('${base.path}/$_photosFolderName/$label');
+    await dir.create(recursive: true);
+    return dir;
+  }
+
   Future<File> get _dataFile async {
     final dir = await appDir;
     return File('${dir.path}/$_dataFileName');
+  }
+
+  Future<File> get _labelsFile async {
+    final dir = await appDir;
+    return File('${dir.path}/$_labelsFileName');
+  }
+
+  Future<File> get _habitsFile async {
+    final dir = await appDir;
+    return File('${dir.path}/$_habitsFileName');
+  }
+
+  Future<File> get _expensesFile async {
+    final dir = await appDir;
+    return File('${dir.path}/$_expensesFileName');
+  }
+
+  Future<File> get _journalFile async {
+    final dir = await appDir;
+    return File('${dir.path}/$_journalFileName');
   }
 
   Future<String> get storagePath async {
@@ -136,8 +172,131 @@ class StorageService {
     return dest;
   }
 
+  /// Copies an image into a label-specific sub-folder. Returns the new path.
+  Future<String> copyPhotoToLabelFolder(String sourcePath, String label) async {
+    final dir = await getLabelPhotosDir(label);
+    final ext = sourcePath.split('.').last.toLowerCase();
+    final name = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final dest = '${dir.path}/$name';
+    await File(sourcePath).copy(dest);
+    return dest;
+  }
+
+  /// Returns all photo file paths for a label, newest first.
+  Future<List<String>> getPhotosForLabel(String label) async {
+    final dir = await getLabelPhotosDir(label);
+    if (!await dir.exists()) return [];
+    final entities = await dir.list().toList();
+    final files = entities
+        .whereType<File>()
+        .where((f) {
+          final lower = f.path.toLowerCase();
+          return lower.endsWith('.jpg') ||
+              lower.endsWith('.jpeg') ||
+              lower.endsWith('.png') ||
+              lower.endsWith('.webp');
+        })
+        .toList();
+    files.sort((a, b) => b.path.compareTo(a.path));
+    return files.map((f) => f.path).toList();
+  }
+
   Future<void> deletePhoto(String path) async {
     final file = File(path);
     if (await file.exists()) await file.delete();
+  }
+
+  // ---------- Label management ----------
+
+  Future<List<String>> loadLabels() async {
+    try {
+      final file = await _labelsFile;
+      if (!await file.exists()) return List.from(_defaultLabels);
+      final raw = await file.readAsString();
+      final list = jsonDecode(raw) as List;
+      return list.cast<String>();
+    } catch (_) {
+      return List.from(_defaultLabels);
+    }
+  }
+
+  Future<void> saveLabels(List<String> labels) async {
+    final file = await _labelsFile;
+    await file.writeAsString(jsonEncode(labels));
+  }
+
+  // ---------- Habits ----------
+
+  Future<({List<Habit> habits, List<HabitLog> logs})> loadHabits() async {
+    try {
+      final file = await _habitsFile;
+      if (!await file.exists()) return (habits: <Habit>[], logs: <HabitLog>[]);
+      final raw = await file.readAsString();
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      final habits = (map['habits'] as List? ?? [])
+          .map((e) => Habit.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final logs = (map['logs'] as List? ?? [])
+          .map((e) => HabitLog.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return (habits: habits, logs: logs);
+    } catch (_) {
+      return (habits: <Habit>[], logs: <HabitLog>[]);
+    }
+  }
+
+  Future<void> saveHabits(List<Habit> habits, List<HabitLog> logs) async {
+    final file = await _habitsFile;
+    await file.writeAsString(jsonEncode({
+      'habits': habits.map((h) => h.toJson()).toList(),
+      'logs': logs.map((l) => l.toJson()).toList(),
+    }));
+  }
+
+  // ---------- Expenses ----------
+
+  Future<({List<Expense> expenses, List<Budget> budgets})> loadExpenses() async {
+    try {
+      final file = await _expensesFile;
+      if (!await file.exists()) return (expenses: <Expense>[], budgets: <Budget>[]);
+      final raw = await file.readAsString();
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      final expenses = (map['expenses'] as List? ?? [])
+          .map((e) => Expense.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final budgets = (map['budgets'] as List? ?? [])
+          .map((e) => Budget.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return (expenses: expenses, budgets: budgets);
+    } catch (_) {
+      return (expenses: <Expense>[], budgets: <Budget>[]);
+    }
+  }
+
+  Future<void> saveExpenses(List<Expense> expenses, List<Budget> budgets) async {
+    final file = await _expensesFile;
+    await file.writeAsString(jsonEncode({
+      'expenses': expenses.map((e) => e.toJson()).toList(),
+      'budgets': budgets.map((b) => b.toJson()).toList(),
+    }));
+  }
+
+  // ---------- Journal ----------
+
+  Future<List<JournalEntry>> loadJournal() async {
+    try {
+      final file = await _journalFile;
+      if (!await file.exists()) return [];
+      final raw = await file.readAsString();
+      final list = jsonDecode(raw) as List;
+      return list.map((e) => JournalEntry.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> saveJournal(List<JournalEntry> entries) async {
+    final file = await _journalFile;
+    await file.writeAsString(jsonEncode(entries.map((e) => e.toJson()).toList()));
   }
 }
