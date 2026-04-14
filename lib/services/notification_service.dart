@@ -20,6 +20,11 @@ class NotificationService {
   static const _photoChannelName = 'Daily Photo Reminder';
   static const _photoNotifId = 999001;
 
+  static const _focusChannelId = 'focus_timer';
+  static const _focusChannelName = 'Focus Timer';
+  static const _focusWorkNotifId = 999002;
+  static const _focusBreakNotifId = 999003;
+
   Future<void> init() async {
     tz.initializeTimeZones();
 
@@ -47,10 +52,17 @@ class NotificationService {
       description: 'Daily end-of-day reminder to capture a photo',
       importance: Importance.defaultImportance,
     );
+    const focusChannel = AndroidNotificationChannel(
+      _focusChannelId,
+      _focusChannelName,
+      description: 'Focus session and break timer notifications',
+      importance: Importance.high,
+    );
     final androidImpl = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     await androidImpl?.createNotificationChannel(channel);
     await androidImpl?.createNotificationChannel(photoChannel);
+    await androidImpl?.createNotificationChannel(focusChannel);
   }
 
   Future<bool> requestPermission() async {
@@ -133,4 +145,58 @@ class NotificationService {
 
   Future<void> cancelPhotoReminder() async =>
       _plugin.cancel(_photoNotifId);
+
+  // ── Focus timer notifications ───────────────────────────────────────────────
+
+  Future<void> scheduleFocusWorkEnd(int seconds, {String? label}) async {
+    await cancelFocusWorkNotification();
+    final fireAt = DateTime.now().add(Duration(seconds: seconds));
+    await _plugin.zonedSchedule(
+      _focusWorkNotifId,
+      '⏱ Focus session complete!',
+      label != null ? '"$label" is done. Take a break.' : 'Great work! Time for a break.',
+      tz.TZDateTime.from(fireAt, tz.local),
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _focusChannelId,
+          _focusChannelName,
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: const DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> scheduleFocusBreakEnd(int seconds) async {
+    await cancelFocusBreakNotification();
+    final fireAt = DateTime.now().add(Duration(seconds: seconds));
+    await _plugin.zonedSchedule(
+      _focusBreakNotifId,
+      '🎯 Break over — ready to focus?',
+      'Your break is done. Start your next session.',
+      tz.TZDateTime.from(fireAt, tz.local),
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _focusChannelId,
+          _focusChannelName,
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: const DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> cancelFocusWorkNotification() async =>
+      _plugin.cancel(_focusWorkNotifId);
+
+  Future<void> cancelFocusBreakNotification() async =>
+      _plugin.cancel(_focusBreakNotifId);
 }
