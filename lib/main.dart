@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'screens/home_screen.dart';
+import 'services/health_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'services/widget_service.dart';
@@ -12,6 +13,7 @@ void main() async {
 
   await NotificationService.instance.init();
   await WidgetService.instance.init();
+  await HealthService.instance.checkAuthorization(); // restore HC session silently
 
   runApp(const LifeTrackerApp());
 }
