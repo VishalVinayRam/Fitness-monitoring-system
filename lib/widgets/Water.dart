@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:management/models/Userdate.dart';
 import 'package:management/widgets/Hero_section.dart';
 import 'package:provider/provider.dart';
 import 'package:management/themes/Fitness.dart';
@@ -6,7 +7,7 @@ import '../models/water.dart';
 
 class WaterView extends StatelessWidget {
   WaterView({Key? key}) : super(key: key);
-
+  GlobalData data = GlobalData();
   late DateTime nows;
 
   @override
@@ -50,9 +51,9 @@ class WaterView extends StatelessWidget {
                                 Padding(
                                   padding: EdgeInsets.only(left: 4, bottom: 3),
                                   child: Text(
-                                    model.totalCaloriesConsumed.toStringAsFixed(0),
+                                    model.totalWaterConsumed.toStringAsFixed(0),
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style:const TextStyle(
                                       fontFamily: FitnessAppTheme.fontName,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 32,
@@ -63,9 +64,9 @@ class WaterView extends StatelessWidget {
                                 Padding(
                                   padding: EdgeInsets.only(left: 8, bottom: 8),
                                   child: Text(
-                                    model.units,
+                                    model.totalWaterConsumed.toString(),
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style:const TextStyle(
                                       fontFamily: FitnessAppTheme.fontName,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 18,
@@ -79,9 +80,9 @@ class WaterView extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.only(left: 4, top: 2, bottom: 14),
                               child: Text(
-                                'of daily goal ${model.dailyGoal}',
+                                'of daily goal ${data.waterGoal}',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style:const  TextStyle(
                                   fontFamily: FitnessAppTheme.fontName,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 14,
@@ -96,7 +97,7 @@ class WaterView extends StatelessWidget {
                           padding: EdgeInsets.only(left: 4, right: 4, top: 8, bottom: 16),
                           child: Container(
                             height: 2,
-                            decoration: BoxDecoration(
+                            decoration:const BoxDecoration(
                               color: FitnessAppTheme.background,
                               borderRadius: BorderRadius.all(Radius.circular(4.0)),
                             ),
@@ -196,7 +197,7 @@ class WaterView extends StatelessWidget {
                                 size: 24,
                               ),
                               onPressed: () {
-                                model.updateCalories(100);
+                                model.updateWater(100);
                                 model.updateLastDrinkTime('${(DateTime.now().hour.toInt())%12}:${DateTime.now().minute}   ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}');
                               },
                             ),
@@ -223,7 +224,7 @@ class WaterView extends StatelessWidget {
                                 size: 24,
                               ),
                               onPressed: () {
-                                model.updateCalories(-100);
+                                model.updateWater(-100);
                               },
                             ),
                           ),

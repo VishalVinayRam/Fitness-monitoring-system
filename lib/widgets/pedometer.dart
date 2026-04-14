@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
-import './homescreen.dart'; // Import the photo tab screen
+import '../Screens/homescreen.dart'; // Import the photo tab screen
 
 class StepsCounting extends StatefulWidget {
   @override

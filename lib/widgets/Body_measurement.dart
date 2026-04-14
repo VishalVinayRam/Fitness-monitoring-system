@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:management/models/Userdate.dart';
 import 'package:management/themes/Fitness.dart';
 
 class BodyMeasurementView extends StatefulWidget {
@@ -9,6 +10,7 @@ class BodyMeasurementView extends StatefulWidget {
 }
 
 class _BodyMeasurementViewState extends State<BodyMeasurementView> {
+  GlobalData data = GlobalData();
   double weight = 206.8;
   String weightUnit = 'Ibs';
   String lastUpdate = 'Today 8:26 AM';
@@ -17,6 +19,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
   double bmi = 27.3;
   String bmiStatus = 'Overweight';
   double bodyFat = 20.0;
+  String _lastSave = '${DateTime.now().day}/${DateTime.now().month}';
 
   void _openEditModal(String title, String value, Function(String) onSave) {
     TextEditingController controller = TextEditingController(text: value);
@@ -117,7 +120,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                           Padding(
                             padding: const EdgeInsets.only(left: 2, bottom: 3),
                             child: Text(
-                              weight.toStringAsFixed(1),
+                              data.weight.toString(),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: FitnessAppTheme.fontName,
@@ -130,7 +133,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                           Padding(
                             padding: const EdgeInsets.only(left: 5, bottom: 8),
                             child: Text(
-                              weightUnit,
+                              data.totalCaloriesConsumed.toString(),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: FitnessAppTheme.fontName,
@@ -158,7 +161,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                               Padding(
                                 padding: const EdgeInsets.only(left: 4.0),
                                 child: Text(
-                                  lastUpdate,
+                                  data.lastDate,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: FitnessAppTheme.fontName,
@@ -215,7 +218,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              height.toStringAsFixed(1) + ' cm',
+                              data.height.toStringAsFixed(1) + ' cm',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: FitnessAppTheme.fontName,
@@ -231,6 +234,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                                 _openEditModal('Height', height.toString(), (value) {
                                   setState(() {
                                     height = double.parse(value);
+                                    data.saveToPrefs('height', value);
                                   });
                                 });
                               },
@@ -266,7 +270,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  bmi.toStringAsFixed(1) + ' BMI',
+                                  data.bmi.toStringAsFixed(1) + ' BMI',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: FitnessAppTheme.fontName,
@@ -281,7 +285,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                                   onPressed: () {
                                     _openEditModal('BMI', bmi.toString(), (value) {
                                       setState(() {
-                                        bmi = double.parse(value);
+                                        data.saveToPrefs('bmi', value);
                                       });
                                     });
                                   },
@@ -319,7 +323,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  bodyFat.toStringAsFixed(1) + '%',
+                                  data.fat.toStringAsFixed(1) + '%',
                                   style: TextStyle(
                                     fontFamily: FitnessAppTheme.fontName,
                                     fontWeight: FontWeight.w500,
@@ -333,7 +337,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                                   onPressed: () {
                                     _openEditModal('Body Fat', bodyFat.toString(), (value) {
                                       setState(() {
-                                        bodyFat = double.parse(value);
+                                        data.saveToPrefs('fat', value);
                                       });
                                     });
                                   },

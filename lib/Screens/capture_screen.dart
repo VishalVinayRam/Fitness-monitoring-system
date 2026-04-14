@@ -3,7 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'models/photo.dart';
+import '../models/photo.dart';
 
 class CaptureScreen extends StatefulWidget {
   @override
