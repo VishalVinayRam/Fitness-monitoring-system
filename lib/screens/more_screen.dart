@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'expense_screen.dart';
+import 'focus_timer_screen.dart';
 import 'habits_screen.dart';
 import 'health_screen.dart';
 import 'journal_screen.dart';
+import 'review_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -11,7 +13,7 @@ class MoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
         _ModuleCard(
           icon: Icons.watch_outlined,
@@ -54,6 +56,28 @@ class MoreScreen extends StatelessWidget {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const JournalScreen()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _ModuleCard(
+          icon: Icons.timer_outlined,
+          title: 'Focus Timer',
+          subtitle: 'Pomodoro sessions with automatic logging',
+          color: Colors.orange,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FocusTimerScreen()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _ModuleCard(
+          icon: Icons.bar_chart_rounded,
+          title: 'Weekly & Monthly Review',
+          subtitle: 'Habits, mood, spend, and focus at a glance',
+          color: Colors.blueGrey,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ReviewScreen()),
           ),
         ),
       ],

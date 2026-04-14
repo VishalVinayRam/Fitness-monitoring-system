@@ -52,6 +52,23 @@ class HealthService {
   Future<bool> isHealthConnectAvailable() =>
       _health.isHealthConnectAvailable();
 
+  /// Silently checks if permissions are already granted — no UI prompt.
+  /// Call this on app startup so returning users skip the Connect screen.
+  Future<bool> checkAuthorization() async {
+    try {
+      final available = await _health.isHealthConnectAvailable();
+      if (!available) return false;
+      final granted = await _health.hasPermissions(_types);
+      if (granted == true) {
+        _authorized = true;
+        return true;
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Opens the Health Connect permission screen. Returns [AuthResult].
   Future<AuthResult> authorize() async {
     try {

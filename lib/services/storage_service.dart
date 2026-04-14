@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../models/entry.dart';
 import '../models/expense.dart';
+import '../models/focus_session.dart';
 import '../models/habit.dart';
 import '../models/journal_entry.dart';
 
@@ -15,6 +16,7 @@ class StorageService {
   static const String _habitsFileName = 'habits.json';
   static const String _expensesFileName = 'expenses.json';
   static const String _journalFileName = 'journal.json';
+  static const String _focusFileName = 'focus_sessions.json';
   static const String _appFolderName = 'LifeTracker';
   static const String _photosFolderName = 'photos';
 
@@ -93,6 +95,11 @@ class StorageService {
   Future<File> get _journalFile async {
     final dir = await appDir;
     return File('${dir.path}/$_journalFileName');
+  }
+
+  Future<File> get _focusFile async {
+    final dir = await appDir;
+    return File('${dir.path}/$_focusFileName');
   }
 
   Future<String> get storagePath async {
@@ -298,5 +305,30 @@ class StorageService {
   Future<void> saveJournal(List<JournalEntry> entries) async {
     final file = await _journalFile;
     await file.writeAsString(jsonEncode(entries.map((e) => e.toJson()).toList()));
+  }
+
+  // ---------- Focus Sessions ----------
+
+  Future<List<FocusSession>> loadFocusSessions() async {
+    try {
+      final file = await _focusFile;
+      if (!await file.exists()) return [];
+      final raw = await file.readAsString();
+      final list = jsonDecode(raw) as List;
+      return list.map((e) => FocusSession.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> saveFocusSessions(List<FocusSession> sessions) async {
+    final file = await _focusFile;
+    await file.writeAsString(jsonEncode(sessions.map((s) => s.toJson()).toList()));
+  }
+
+  Future<void> addFocusSession(FocusSession session) async {
+    final sessions = await loadFocusSessions();
+    sessions.add(session);
+    await saveFocusSessions(sessions);
   }
 }

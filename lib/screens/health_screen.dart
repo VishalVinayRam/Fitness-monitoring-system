@@ -30,11 +30,20 @@ class _HealthScreenState extends State<HealthScreen> {
   }
 
   Future<void> _init() async {
+    // Silently re-check permissions in case startup check hasn't run yet
+    if (!HealthService.instance.isAuthorized) {
+      await HealthService.instance.checkAuthorization();
+    }
+
     if (HealthService.instance.isAuthorized) {
       await _fetchData();
       if (mounted) setState(() => _state = _HealthState.connected);
     } else {
-      if (mounted) setState(() => _state = _HealthState.notConnected);
+      final available = await HealthService.instance.isHealthConnectAvailable();
+      if (!mounted) return;
+      setState(() => _state = available
+          ? _HealthState.notConnected
+          : _HealthState.healthConnectNotInstalled);
     }
   }
 
